@@ -1,0 +1,12 @@
+{
+  "name": "hangugeo-flash",
+  "version": "1.0.0",
+  "description": "Application de flashcards pour apprendre le coréen",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>한국어 Flash — Apprenez le coréen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── En-tête ───────────────────────────────── -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-kr">한국어</span>
+        <span class="logo-en">Flash</span>
+        <span class="logo-blossom">🌸</span>
+      </div>
+      <nav>
+        <button class="nav-btn active" data-view="flashcards">📚 Flashcards</button>
+        <button class="nav-btn" data-view="quiz">🧠 Quiz</button>
+        <button class="nav-btn" data-view="mes-cartes">✏️ Mes Cartes</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ══════════════════════════════════════════
+         VUE 1 : FLASHCARDS
+    ══════════════════════════════════════════ -->
+    <section id="view-flashcards" class="view active">
+
+      <div class="view-header">
+        <h1>Flashcards</h1>
+        <div class="filter-bar">
+          <button class="filter-btn active" data-filter="all">Toutes</button>
+          <button class="filter-btn" data-filter="review">À revoir</button>
+          <button class="filter-btn" data-filter="mastered">Maîtrisées</button>
+        </div>
+      </div>
+
+      <div class="card-counter">
+        Carte <span id="card-current">1</span> / <span id="card-total">60</span>
+      </div>
+
+      <!-- Carte avec animation flip 3D -->
+      <div class="card-scene" id="card-scene" title="Cliquez pour retourner">
+        <div class="card-flip" id="card-flip">
+
+          <!-- Recto : hangeul sur fond dégradé -->
+          <div class="card-face card-front">
+            <div class="card-category-badge" id="card-category"></div>
+            <div class="card-hangeul" id="card-hangeul-front"></div>
+            <div class="card-hint">Touchez pour retourner</div>
+          </div>
+
+          <!-- Verso : romanisation + traduction -->
+          <div class="card-face card-back">
+            <div class="card-hangeul-small" id="card-hangeul-back"></div>
+            <div class="card-romanisation" id="card-romanisation"></div>
+            <div class="card-divider"></div>
+            <div class="card-translation" id="card-translation"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Navigation + actions -->
+      <div class="card-nav">
+        <button class="btn-icon" id="btn-prev" title="Carte précédente (←)">←</button>
+        <div class="card-actions">
+          <button class="btn-review"   id="btn-review">✗ À revoir</button>
+          <button class="btn-mastered" id="btn-mastered">✓ Je sais</button>
+        </div>
+        <button class="btn-icon" id="btn-next" title="Carte suivante (→)">→</button>
+      </div>
+
+      <p class="keyboard-hint">Conseil : utilisez ← → pour naviguer, Espace pour retourner</p>
+
+      <!-- Stats rapides -->
+      <div class="quick-stats">
+        <div class="stat">
+          <span class="stat-num" id="stat-mastered">0</span>
+          <span class="stat-label">Maîtrisées</span>
+        </div>
+        <div class="stat stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num" id="stat-review">0</span>
+          <span class="stat-label">À revoir</span>
+        </div>
+        <div class="stat stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num" id="stat-unseen">60</span>
+          <span class="stat-label">Non vues</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         VUE 2 : QUIZ
+    ══════════════════════════════════════════ -->
+    <section id="view-quiz" class="view">
+
+      <!-- Écran de départ -->
+      <div id="quiz-start">
+        <div class="center-card">
+          <div class="big-emoji">🧠</div>
+          <h2>Mode Quiz</h2>
+          <p>10 mots coréens. 4 choix. Prouvez ce que vous savez !</p>
+          <button class="btn-primary" id="btn-start-quiz">Commencer le quiz</button>
+        </div>
+      </div>
+
+      <!-- Écran de question -->
+      <div id="quiz-question" class="hidden">
+        <div class="quiz-meta">
+          <span>Question <strong id="quiz-q-num">1</strong>/10</span>
+          <span>Score : <strong id="quiz-score-live">0</strong></span>
+        </div>
+        <div class="quiz-progress-bar">
+          <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+        </div>
+
+        <div class="quiz-word">
+          <div class="quiz-hangeul"      id="quiz-hangeul"></div>
+          <div class="quiz-romanisation" id="quiz-romanisation"></div>
+        </div>
+
+        <div class="quiz-choices" id="quiz-choices">
+          <!-- 4 boutons générés dynamiquement -->
+        </div>
+      </div>
+
+      <!-- Écran de résultat -->
+      <div id="quiz-result" class="hidden">
+        <div class="center-card">
+          <div class="big-emoji" id="result-emoji">🎉</div>
+          <h2 id="result-title">Excellent !</h2>
+          <div class="result-score">
+            <span id="result-score-num">10</span><span class="result-total">/10</span>
+          </div>
+          <p id="result-message" class="result-message"></p>
+          <button class="btn-primary" id="btn-retry">Recommencer</button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         VUE 3 : MES CARTES
+    ══════════════════════════════════════════ -->
+    <section id="view-mes-cartes" class="view">
+
+      <div class="view-header">
+        <h1>Mes Cartes</h1>
+      </div>
+
+      <!-- Formulaire d'ajout -->
+      <div class="add-card-form">
+        <h3 class="form-title">Ajouter une carte</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="input-hangeul">Coréen (한글)</label>
+            <input type="text" id="input-hangeul"     placeholder="예) 사랑" />
+          </div>
+          <div class="form-group">
+            <label for="input-roman">Romanisation</label>
+            <input type="text" id="input-roman"       placeholder="ex. sarang" />
+          </div>
+          <div class="form-group">
+            <label for="input-translation">Traduction française</label>
+            <input type="text" id="input-translation" placeholder="ex. Amour" />
+          </div>
+        </div>
+        <button class="btn-primary" id="btn-add-card">+ Ajouter la carte</button>
+        <p class="form-error hidden" id="form-error">Veuillez remplir tous les champs.</p>
+      </div>
+
+      <!-- Liste des cartes personnalisées -->
+      <div class="my-cards-list">
+        <h3 class="section-label">
+          Mes cartes personnalisées <span id="my-cards-count">(0)</span>
+        </h3>
+        <div id="my-cards-container">
+          <!-- Rempli par script.js -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ── Vocabulaire pré-défini (60 mots) ───────── -->
+  <script id="vocab-data" type="application/json">
+  [
+    {"id":1, "hangeul":"안녕하세요",     "romanisation":"annyeonghaseyo",    "translation":"Bonjour",                        "category":"Salutations"},
+    {"id":2, "hangeul":"감사합니다",     "romanisation":"gamsahamnida",      "translation":"Merci",                          "category":"Salutations"},
+    {"id":3, "hangeul":"죄송합니다",     "romanisation":"joesonghamnida",    "translation":"Pardon / Désolé",                "category":"Salutations"},
+    {"id":4, "hangeul":"네",            "romanisation":"ne",                "translation":"Oui",                            "category":"Salutations"},
+    {"id":5, "hangeul":"아니요",         "romanisation":"aniyo",             "translation":"Non",                            "category":"Salutations"},
+    {"id":6, "hangeul":"안녕히 가세요",  "romanisation":"annyeonghi gaseyo", "translation":"Au revoir",                      "category":"Salutations"},
+    {"id":7, "hangeul":"어서 오세요",    "romanisation":"eoseo oseyo",       "translation":"Bienvenue",                      "category":"Salutations"},
+    {"id":8, "hangeul":"반갑습니다",     "romanisation":"bangapseumnida",    "translation":"Enchanté(e)",                    "category":"Salutations"},
+    {"id":9, "hangeul":"잘 지내요",      "romanisation":"jal jinaeyo",       "translation":"Je vais bien",                   "category":"Salutations"},
+    {"id":10,"hangeul":"이름이 뭐예요?", "romanisation":"ireumi mwoyeyo?",   "translation":"Comment vous appelez-vous ?",    "category":"Salutations"},
+    {"id":11,"hangeul":"일",            "romanisation":"il",                "translation":"Un",                             "category":"Chiffres"},
+    {"id":12,"hangeul":"이",            "romanisation":"i",                 "translation":"Deux",                           "category":"Chiffres"},
+    {"id":13,"hangeul":"삼",            "romanisation":"sam",               "translation":"Trois",                          "category":"Chiffres"},
+    {"id":14,"hangeul":"사",            "romanisation":"sa",                "translation":"Quatre",                         "category":"Chiffres"},
+    {"id":15,"hangeul":"오",            "romanisation":"o",                 "translation":"Cinq",                           "category":"Chiffres"},
+    {"id":16,"hangeul":"육",            "romanisation":"yuk",               "translation":"Six",                            "category":"Chiffres"},
+    {"id":17,"hangeul":"칠",            "romanisation":"chil",              "translation":"Sept",                           "category":"Chiffres"},
+    {"id":18,"hangeul":"팔",            "romanisation":"pal",               "translation":"Huit",                           "category":"Chiffres"},
+    {"id":19,"hangeul":"구",            "romanisation":"gu",                "translation":"Neuf",                           "category":"Chiffres"},
+    {"id":20,"hangeul":"십",            "romanisation":"sip",               "translation":"Dix",                            "category":"Chiffres"},
+    {"id":21,"hangeul":"빨간색",         "romanisation":"ppalgansaek",       "translation":"Rouge",                          "category":"Couleurs"},
+    {"id":22,"hangeul":"파란색",         "romanisation":"paransaek",         "translation":"Bleu",                           "category":"Couleurs"},
+    {"id":23,"hangeul":"노란색",         "romanisation":"noransaek",         "translation":"Jaune",                          "category":"Couleurs"},
+    {"id":24,"hangeul":"초록색",         "romanisation":"choroksaek",        "translation":"Vert",                           "category":"Couleurs"},
+    {"id":25,"hangeul":"흰색",           "romanisation":"huinsaek",          "translation":"Blanc",                          "category":"Couleurs"},
+    {"id":26,"hangeul":"검은색",         "romanisation":"geomeunsaek",       "translation":"Noir",                           "category":"Couleurs"},
+    {"id":27,"hangeul":"분홍색",         "romanisation":"bunhongsaek",       "translation":"Rose",                           "category":"Couleurs"},
+    {"id":28,"hangeul":"보라색",         "romanisation":"borasaek",          "translation":"Violet",                         "category":"Couleurs"},
+    {"id":29,"hangeul":"어머니",         "romanisation":"eomeoni",           "translation":"Mère",                           "category":"Famille"},
+    {"id":30,"hangeul":"아버지",         "romanisation":"abeoji",            "translation":"Père",                           "category":"Famille"},
+    {"id":31,"hangeul":"형",            "romanisation":"hyeong",            "translation":"Grand frère (pour un homme)",     "category":"Famille"},
+    {"id":32,"hangeul":"언니",           "romanisation":"eonni",             "translation":"Grande sœur (pour une femme)",   "category":"Famille"},
+    {"id":33,"hangeul":"동생",           "romanisation":"dongsaeng",         "translation":"Petit(e) frère / sœur",          "category":"Famille"},
+    {"id":34,"hangeul":"할머니",         "romanisation":"halmeoni",          "translation":"Grand-mère",                     "category":"Famille"},
+    {"id":35,"hangeul":"할아버지",       "romanisation":"harabeoji",         "translation":"Grand-père",                     "category":"Famille"},
+    {"id":36,"hangeul":"친구",           "romanisation":"chingu",            "translation":"Ami(e)",                         "category":"Famille"},
+    {"id":37,"hangeul":"밥",            "romanisation":"bap",               "translation":"Riz (cuit)",                     "category":"Nourriture"},
+    {"id":38,"hangeul":"물",            "romanisation":"mul",               "translation":"Eau",                            "category":"Nourriture"},
+    {"id":39,"hangeul":"커피",           "romanisation":"keopi",             "translation":"Café",                           "category":"Nourriture"},
+    {"id":40,"hangeul":"김치",           "romanisation":"gimchi",            "translation":"Kimchi",                         "category":"Nourriture"},
+    {"id":41,"hangeul":"빵",            "romanisation":"ppang",             "translation":"Pain",                           "category":"Nourriture"},
+    {"id":42,"hangeul":"고기",           "romanisation":"gogi",              "translation":"Viande",                         "category":"Nourriture"},
+    {"id":43,"hangeul":"채소",           "romanisation":"chaeso",            "translation":"Légumes",                        "category":"Nourriture"},
+    {"id":44,"hangeul":"과일",           "romanisation":"gwail",             "translation":"Fruits",                         "category":"Nourriture"},
+    {"id":45,"hangeul":"라면",           "romanisation":"ramyeon",           "translation":"Ramen",                          "category":"Nourriture"},
+    {"id":46,"hangeul":"된장찌개",       "romanisation":"doenjang jjigae",   "translation":"Soupe miso coréenne",            "category":"Nourriture"},
+    {"id":47,"hangeul":"가다",           "romanisation":"gada",              "translation":"Aller",                          "category":"Verbes"},
+    {"id":48,"hangeul":"오다",           "romanisation":"oda",               "translation":"Venir",                          "category":"Verbes"},
+    {"id":49,"hangeul":"먹다",           "romanisation":"meokda",            "translation":"Manger",                         "category":"Verbes"},
+    {"id":50,"hangeul":"마시다",         "romanisation":"masida",            "translation":"Boire",                          "category":"Verbes"},
+    {"id":51,"hangeul":"자다",           "romanisation":"jada",              "translation":"Dormir",                         "category":"Verbes"},
+    {"id":52,"hangeul":"일하다",         "romanisation":"ilhada",            "translation":"Travailler",                     "category":"Verbes"},
+    {"id":53,"hangeul":"공부하다",       "romanisation":"gongbuhada",        "translation":"Étudier",                        "category":"Verbes"},
+    {"id":54,"hangeul":"사랑하다",       "romanisation":"saranghada",        "translation":"Aimer",                          "category":"Verbes"},
+    {"id":55,"hangeul":"오늘",           "romanisation":"oneul",             "translation":"Aujourd'hui",                    "category":"Temps"},
+    {"id":56,"hangeul":"내일",           "romanisation":"naeil",             "translation":"Demain",                         "category":"Temps"},
+    {"id":57,"hangeul":"어제",           "romanisation":"eoje",              "translation":"Hier",                           "category":"Temps"},
+    {"id":58,"hangeul":"월요일",         "romanisation":"woryoil",           "translation":"Lundi",                          "category":"Temps"},
+    {"id":59,"hangeul":"토요일",         "romanisation":"toyoil",            "translation":"Samedi",                         "category":"Temps"},
+    {"id":60,"hangeul":"일요일",         "romanisation":"iryoil",            "translation":"Dimanche",                       "category":"Temps"}
+  ]
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>
