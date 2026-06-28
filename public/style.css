@@ -23,6 +23,28 @@
   --radius-sm:    12px;
 }
 
+/* Thème sombre — mêmes accents cerise/violet, fond nuit */
+[data-theme="dark"] {
+  --bg:           #181624;
+  --card:         #221F33;
+  --primary:      #F0688A;
+  --primary-lt:   #6B3349;
+  --secondary:    #C9B8E8;
+  --success:      #4FCB95;
+  --success-lt:   #1F4A38;
+  --text:         #F4F1FA;
+  --text-muted:   #9590AD;
+  --border:       #332E4A;
+  --shadow:       0 6px 24px rgba(0,0,0,.35);
+  --shadow-lg:    0 16px 48px rgba(0,0,0,.45);
+}
+
+body { transition: background-color .3s, color .3s; }
+.card, .add-card-form, .my-card-item, .center-card, .quick-stats,
+.streak-card, .mastery-card, .history-card, .empty-state {
+  transition: background-color .3s, border-color .3s, box-shadow .3s;
+}
+
 /* ── Base ───────────────────────────────────────── */
 body {
   font-family: 'Poppins', sans-serif;
@@ -54,6 +76,32 @@ header {
   align-items: center;
   gap: .8rem;
 }
+
+.logo-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.btn-theme-toggle {
+  position: absolute;
+  right: 0;
+  background: var(--border);
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: .95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .2s, background .2s;
+}
+
+.btn-theme-toggle:hover { transform: scale(1.08); }
 
 .logo {
   display: flex;
@@ -140,10 +188,32 @@ main {
    FLASHCARDS
 ══════════════════════════════════════════════════ */
 
+.filters-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .6rem;
+}
+
 .filter-bar {
   display: flex;
   gap: .35rem;
 }
+
+.select-input {
+  border: 1.5px solid var(--border);
+  border-radius: 50px;
+  padding: .3rem .9rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: .75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--card);
+  cursor: pointer;
+  outline: none;
+}
+
+.select-input:focus { border-color: var(--primary); }
 
 .filter-btn {
   background: var(--card);
@@ -221,6 +291,33 @@ main {
   padding: .18rem .6rem;
   border-radius: 50px;
 }
+
+.btn-speak {
+  position: absolute;
+  top: 1.1rem;
+  left: 1.2rem;
+  background: rgba(255,255,255,.22);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: .85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .15s, background .15s;
+  z-index: 2;
+}
+
+.btn-speak:hover { transform: scale(1.1); background: rgba(255,255,255,.35); }
+
+.btn-speak-dark {
+  background: var(--bg);
+  color: var(--primary);
+}
+
+.btn-speak-dark:hover { background: var(--border); }
 
 .card-hangeul {
   font-family: 'Noto Sans KR', sans-serif;
@@ -664,23 +761,6 @@ main {
   font-size: .88rem;
 }
 
-.btn-delete {
-  position: absolute;
-  top: .7rem;
-  right: .7rem;
-  background: none;
-  border: none;
-  font-size: .78rem;
-  cursor: pointer;
-  color: var(--text-muted);
-  opacity: .45;
-  padding: .15rem .3rem;
-  border-radius: 4px;
-  transition: all .2s;
-}
-
-.btn-delete:hover { opacity: 1; color: var(--primary); background: #FFF0F3; }
-
 /* ══════════════════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════════════════ */
@@ -704,4 +784,264 @@ main {
 
   .card-actions { gap: .4rem; }
   .btn-review, .btn-mastered { padding: .5rem .85rem; font-size: .78rem; }
+}
+
+/* ══════════════════════════════════════════════════
+   RÉGLAGES DU QUIZ
+══════════════════════════════════════════════════ */
+
+.quiz-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin-bottom: 1.8rem;
+  text-align: left;
+}
+
+.setting-row {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+
+.setting-row label {
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--text-muted);
+}
+
+.pill-group {
+  display: flex;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+
+.option-btn {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  padding: .4rem .9rem;
+  border-radius: 50px;
+  font-family: 'Poppins', sans-serif;
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.option-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.quiz-settings .select-input {
+  width: 100%;
+  text-align: left;
+  border-radius: var(--radius-sm);
+  padding: .55rem .85rem;
+  font-size: .85rem;
+}
+
+/* ══════════════════════════════════════════════════
+   MODE "TAPER LA RÉPONSE"
+══════════════════════════════════════════════════ */
+
+.quiz-typing {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+  align-items: center;
+}
+
+.typing-input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: .85rem 1rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  text-align: center;
+  background: var(--card);
+  color: var(--text);
+  outline: none;
+  transition: border-color .2s;
+}
+
+.typing-input:focus { border-color: var(--primary); }
+
+.typing-input:disabled { opacity: .7; }
+
+.typing-feedback {
+  font-size: .92rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.typing-feedback.correct { color: var(--success); }
+.typing-feedback.wrong   { color: var(--primary); }
+
+/* ══════════════════════════════════════════════════
+   ÉDITION DES CARTES PERSO
+══════════════════════════════════════════════════ */
+
+.form-buttons {
+  display: flex;
+  gap: .6rem;
+  align-items: center;
+}
+
+.btn-cancel {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: 'Poppins', sans-serif;
+  font-size: .85rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: .5rem;
+}
+
+.btn-cancel:hover { color: var(--primary); }
+
+.my-card-item.editing {
+  border-left-color: var(--primary);
+  box-shadow: var(--shadow-lg);
+}
+
+.my-card-actions {
+  position: absolute;
+  top: .7rem;
+  right: .7rem;
+  display: flex;
+  gap: .25rem;
+}
+
+.btn-edit, .btn-delete {
+  background: none;
+  border: none;
+  font-size: .78rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  opacity: .45;
+  padding: .15rem .3rem;
+  border-radius: 4px;
+  transition: all .2s;
+}
+
+.btn-edit:hover   { opacity: 1; color: var(--secondary); background: var(--bg); }
+.btn-delete:hover { opacity: 1; color: var(--primary); background: var(--bg); }
+
+/* ══════════════════════════════════════════════════
+   STATS
+══════════════════════════════════════════════════ */
+
+.streak-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.streak-flame { font-size: 2.4rem; }
+
+.streak-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .15rem;
+}
+
+.streak-num {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.streak-label {
+  font-size: .7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  text-align: center;
+}
+
+.streak-divider-v {
+  width: 1px;
+  height: 42px;
+  background: var(--border);
+}
+
+.mastery-card, .history-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.25rem;
+}
+
+.mastery-bar-track {
+  height: 12px;
+  background: var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: .65rem;
+}
+
+.mastery-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  border-radius: 8px;
+  width: 0%;
+  transition: width .5s ease;
+}
+
+.mastery-text {
+  font-size: .82rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.history-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: .6rem;
+  height: 130px;
+  padding-top: .5rem;
+}
+
+.history-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  flex: 1;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.history-bar {
+  width: 100%;
+  max-width: 34px;
+  border-radius: 6px 6px 2px 2px;
+  background: linear-gradient(180deg, var(--secondary), var(--primary));
+  min-height: 4px;
+  cursor: default;
+  transition: opacity .2s;
+}
+
+.history-bar:hover { opacity: .8; }
+
+.history-bar-label {
+  font-size: .65rem;
+  color: var(--text-muted);
+  font-weight: 600;
 }

@@ -13,15 +13,21 @@
   <!-- ── En-tête ───────────────────────────────── -->
   <header>
     <div class="header-inner">
-      <div class="logo">
-        <span class="logo-kr">한국어</span>
-        <span class="logo-en">Flash</span>
-        <span class="logo-blossom">🌸</span>
+      <div class="logo-row">
+        <div class="logo">
+          <span class="logo-kr">한국어</span>
+          <span class="logo-en">Flash</span>
+          <span class="logo-blossom">🌸</span>
+        </div>
+        <button class="btn-theme-toggle" id="btn-theme-toggle" aria-label="Changer de thème">
+          <span id="theme-icon">🌙</span>
+        </button>
       </div>
       <nav>
         <button class="nav-btn active" data-view="flashcards">📚 Flashcards</button>
         <button class="nav-btn" data-view="quiz">🧠 Quiz</button>
         <button class="nav-btn" data-view="mes-cartes">✏️ Mes Cartes</button>
+        <button class="nav-btn" data-view="stats">🔥 Stats</button>
       </nav>
     </div>
   </header>
@@ -35,10 +41,13 @@
 
       <div class="view-header">
         <h1>Flashcards</h1>
-        <div class="filter-bar">
-          <button class="filter-btn active" data-filter="all">Toutes</button>
-          <button class="filter-btn" data-filter="review">À revoir</button>
-          <button class="filter-btn" data-filter="mastered">Maîtrisées</button>
+        <div class="filters-row">
+          <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">Toutes</button>
+            <button class="filter-btn" data-filter="review">À revoir</button>
+            <button class="filter-btn" data-filter="mastered">Maîtrisées</button>
+          </div>
+          <select id="category-filter" class="select-input"></select>
         </div>
       </div>
 
@@ -52,6 +61,7 @@
 
           <!-- Recto : hangeul sur fond dégradé -->
           <div class="card-face card-front">
+            <button class="btn-speak" id="speak-front-btn" aria-label="Écouter la prononciation">🔊</button>
             <div class="card-category-badge" id="card-category"></div>
             <div class="card-hangeul" id="card-hangeul-front"></div>
             <div class="card-hint">Touchez pour retourner</div>
@@ -59,6 +69,7 @@
 
           <!-- Verso : romanisation + traduction -->
           <div class="card-face card-back">
+            <button class="btn-speak btn-speak-dark" id="speak-back-btn" aria-label="Écouter la prononciation">🔊</button>
             <div class="card-hangeul-small" id="card-hangeul-back"></div>
             <div class="card-romanisation" id="card-romanisation"></div>
             <div class="card-divider"></div>
@@ -110,7 +121,30 @@
         <div class="center-card">
           <div class="big-emoji">🧠</div>
           <h2>Mode Quiz</h2>
-          <p>10 mots coréens. 4 choix. Prouvez ce que vous savez !</p>
+          <p>Personnalisez votre session, puis lancez-vous !</p>
+
+          <div class="quiz-settings">
+            <div class="setting-row">
+              <label>Catégorie</label>
+              <select id="quiz-category-select" class="select-input"></select>
+            </div>
+            <div class="setting-row">
+              <label>Nombre de questions</label>
+              <div class="pill-group" id="quiz-count-group">
+                <button class="option-btn active" data-count="5">5</button>
+                <button class="option-btn" data-count="10">10</button>
+                <button class="option-btn" data-count="20">20</button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <label>Mode</label>
+              <div class="pill-group" id="quiz-mode-group">
+                <button class="option-btn active" data-mode="qcm">QCM</button>
+                <button class="option-btn" data-mode="typing">Taper la réponse</button>
+              </div>
+            </div>
+          </div>
+
           <button class="btn-primary" id="btn-start-quiz">Commencer le quiz</button>
         </div>
       </div>
@@ -126,12 +160,22 @@
         </div>
 
         <div class="quiz-word">
+          <button class="btn-speak btn-speak-dark" id="quiz-speak-btn" aria-label="Écouter la prononciation">🔊</button>
           <div class="quiz-hangeul"      id="quiz-hangeul"></div>
           <div class="quiz-romanisation" id="quiz-romanisation"></div>
         </div>
 
+        <!-- Mode QCM -->
         <div class="quiz-choices" id="quiz-choices">
           <!-- 4 boutons générés dynamiquement -->
+        </div>
+
+        <!-- Mode "Taper la réponse" -->
+        <div class="quiz-typing hidden" id="quiz-typing">
+          <input type="text" id="quiz-typing-input" class="typing-input"
+                 placeholder="Tapez la traduction en français…" autocomplete="off" />
+          <button class="btn-primary" id="quiz-typing-submit">Valider</button>
+          <p class="typing-feedback hidden" id="quiz-typing-feedback"></p>
         </div>
       </div>
 
@@ -159,9 +203,9 @@
         <h1>Mes Cartes</h1>
       </div>
 
-      <!-- Formulaire d'ajout -->
+      <!-- Formulaire d'ajout / édition -->
       <div class="add-card-form">
-        <h3 class="form-title">Ajouter une carte</h3>
+        <h3 class="form-title" id="form-title-text">Ajouter une carte</h3>
         <div class="form-grid">
           <div class="form-group">
             <label for="input-hangeul">Coréen (한글)</label>
@@ -176,7 +220,10 @@
             <input type="text" id="input-translation" placeholder="ex. Amour" />
           </div>
         </div>
-        <button class="btn-primary" id="btn-add-card">+ Ajouter la carte</button>
+        <div class="form-buttons">
+          <button class="btn-primary" id="btn-add-card">+ Ajouter la carte</button>
+          <button class="btn-cancel hidden" id="btn-cancel-edit">Annuler</button>
+        </div>
         <p class="form-error hidden" id="form-error">Veuillez remplir tous les champs.</p>
       </div>
 
@@ -186,6 +233,48 @@
           Mes cartes personnalisées <span id="my-cards-count">(0)</span>
         </h3>
         <div id="my-cards-container">
+          <!-- Rempli par script.js -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         VUE 4 : STATS
+    ══════════════════════════════════════════ -->
+    <section id="view-stats" class="view">
+
+      <div class="view-header">
+        <h1>Statistiques</h1>
+      </div>
+
+      <!-- Série de jours -->
+      <div class="streak-card">
+        <div class="streak-flame">🔥</div>
+        <div class="streak-info">
+          <div class="streak-num" id="streak-current">0</div>
+          <div class="streak-label">jours consécutifs</div>
+        </div>
+        <div class="streak-divider-v"></div>
+        <div class="streak-info">
+          <div class="streak-num" id="streak-longest">0</div>
+          <div class="streak-label">record</div>
+        </div>
+      </div>
+
+      <!-- Progression globale -->
+      <div class="mastery-card">
+        <h3 class="section-label">Progression globale</h3>
+        <div class="mastery-bar-track">
+          <div class="mastery-bar-fill" id="mastery-bar-fill"></div>
+        </div>
+        <p class="mastery-text" id="mastery-text">0 / 60 mots maîtrisés</p>
+      </div>
+
+      <!-- Historique des quiz -->
+      <div class="history-card">
+        <h3 class="section-label">Historique des quiz</h3>
+        <div id="history-container">
           <!-- Rempli par script.js -->
         </div>
       </div>
