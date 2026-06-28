@@ -73,9 +73,40 @@ Pour publier une nouvelle version :
 
 ## Notes techniques
 
-- L'application est 100 % statique côté contenu (HTML/CSS/JS) servie par un
-  petit serveur Express — aucune base de données n'est nécessaire.
+- L'application est servie par un petit serveur Express. Elle contient
+  désormais une route `/api/tts` qui nécessite un **accès internet sortant**
+  depuis le serveur Hostinger (déjà disponible par défaut).
 - Toutes les données utilisateur (cartes personnalisées, progression, série
   de jours, historique des quiz) sont stockées dans le **localStorage du
   navigateur** : elles restent sur l'appareil de chaque visiteur, rien n'est
   envoyé ni stocké côté serveur Hostinger.
+
+## Prononciation audio (nouveau)
+
+L'application utilise désormais un moteur de synthèse vocale neuronal
+(Google Translate TTS) au lieu de la voix robotique du navigateur, avec un
+système de cache automatique :
+
+- Le **premier** visiteur à écouter un mot déclenche sa génération (~1 seconde).
+- Le fichier est ensuite **sauvegardé** dans `public/audio/cache/` — tous les
+  visiteurs suivants l'entendent instantanément, sans nouvel appel réseau.
+- Si le service est temporairement indisponible, l'application se replie
+  automatiquement sur la voix du navigateur (aucune erreur visible pour
+  l'utilisateur).
+
+**Étape recommandée après le premier déploiement** : pré-générer l'audio des
+60 mots du programme pour que tout le monde ait un son instantané dès le
+lancement, plutôt que d'attendre que chaque mot soit demandé une première
+fois. Via le terminal SSH fourni par Hostinger, à la racine du projet :
+
+```bash
+node scripts/warm-audio-cache.js
+```
+
+Ce script est sûr à relancer à tout moment (il ignore les fichiers déjà en
+cache) et ne fait rien d'autre que remplir `public/audio/cache/`.
+
+**Important** : assurez-vous que le dossier `public/audio/cache/` est
+accessible en écriture par l'application (c'est le cas par défaut chez
+Hostinger pour les fichiers de votre propre application).
+

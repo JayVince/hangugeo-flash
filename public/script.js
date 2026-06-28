@@ -133,7 +133,11 @@ function fuzzyMatch(input, target) {
   return a.length > 3 && levenshtein(a, b) <= 1;
 }
 
-function speak(text) {
+// Lecteur audio partagé (élément caché dans index.html)
+const audioPlayer = document.getElementById('audio-player');
+
+// Repli : synthèse vocale du navigateur (qualité robotique, mais toujours disponible)
+function browserSpeak(text) {
   if (!('speechSynthesis' in window) || !text) return;
   try {
     window.speechSynthesis.cancel();
@@ -142,6 +146,21 @@ function speak(text) {
     utterance.rate = 0.9;
     window.speechSynthesis.speak(utterance);
   } catch (e) { /* synthèse vocale indisponible — on ignore */ }
+}
+
+// Prononciation principale : passe par le proxy TTS (voix neuronale, mise en cache
+// côté serveur). En cas d'échec réseau ou de service indisponible, on se replie
+// automatiquement sur la synthèse vocale du navigateur.
+function speak(card) {
+  if (!card || !card.hangeul || !audioPlayer) return;
+
+  audioPlayer.onerror = () => browserSpeak(card.hangeul);
+  audioPlayer.src = `/api/tts?text=${encodeURIComponent(card.hangeul)}`;
+
+  const playPromise = audioPlayer.play();
+  if (playPromise && typeof playPromise.catch === 'function') {
+    playPromise.catch(() => browserSpeak(card.hangeul));
+  }
 }
 
 // ── Série de jours (streak) ──────────────────────────
@@ -361,7 +380,7 @@ function setupFlashcards() {
   ['speak-front-btn', 'speak-back-btn'].forEach(id => {
     document.getElementById(id).addEventListener('click', e => {
       e.stopPropagation();
-      if (currentCard) speak(currentCard.hangeul);
+      if (currentCard) speak(currentCard);
     });
   });
 
@@ -442,7 +461,7 @@ function setupQuiz() {
 
   document.getElementById('quiz-speak-btn').addEventListener('click', () => {
     const q = quiz.questions[quiz.current];
-    if (q) speak(q.hangeul);
+    if (q) speak(q);
   });
 
   document.getElementById('quiz-typing-submit').addEventListener('click', submitTypingAnswer);
