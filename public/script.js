@@ -1,47 +1,160 @@
 /* =====================================================
-   한국어 Flash — Script principal
-   Modules : Flashcards · Quiz · Mes Cartes
+   한국어 Flash by OppaLingo — Script principal
+   Modules : Flashcards · Quiz · Mes Cartes · Stats
 ===================================================== */
 
 // ── Données ─────────────────────────────────────────
 
-// 60 mots pré-définis chargés depuis le JSON de la page
 const VOCAB = JSON.parse(document.getElementById('vocab-data').textContent);
 
 // Clés de sauvegarde localStorage
-const LS_PROGRESS = 'hgflash_progress'; // { cardId: 'mastered'|'review' }
-const LS_CUSTOM   = 'hgflash_custom';   // tableau de cartes perso
+const LS_PROGRESS = 'hgflash_progress';
+const LS_CUSTOM   = 'hgflash_custom';
+const LS_THEME    = 'hgflash_theme';
+const LS_HISTORY  = 'hgflash_history';
+const LS_STREAK   = 'hgflash_streak';
+
+// Intervalles (en jours) du système Leitner à 5 boîtes
+const LEITNER_INTERVALS = [0, 1, 3, 7, 14];
 
 // État global de l'application
 const state = {
-  progress:     {},   // statut de chaque carte
-  custom:       [],   // cartes personnalisées
-  filter:       'all',
-  currentIndex: 0,
+  progress:       {},
+  custom:         [],
+  filter:         'all',
+  categoryFilter: 'all',
+  currentIndex:   0,
+  streak:         { current: 0, longest: 0, lastDate: null },
+  history:        [],
 };
+
+let currentCard = null;
+let editingId    = null;
 
 // ── Initialisation ───────────────────────────────────
 
 function init() {
-  const savedProgress = localStorage.getItem(LS_PROGRESS);
-  const savedCustom   = localStorage.getItem(LS_CUSTOM);
-  if (savedProgress) state.progress = JSON.parse(savedProgress);
-  if (savedCustom)   state.custom   = JSON.parse(savedCustom);
+  loadFromStorage();
+  applyInitialTheme();
 
   setupNavigation();
+  setupTheme();
   setupFlashcards();
   setupQuiz();
   setupMesCartes();
+
+  refreshCategorySelects();
+}
+
+function loadFromStorage() {
+  const savedProgress = localStorage.getItem(LS_PROGRESS);
+  const savedCustom   = localStorage.getItem(LS_CUSTOM);
+  const savedStreak   = localStorage.getItem(LS_STREAK);
+  const savedHistory  = localStorage.getItem(LS_HISTORY);
+
+  if (savedProgress) state.progress = migrateProgress(JSON.parse(savedProgress));
+  if (savedCustom)   state.custom   = JSON.parse(savedCustom);
+  if (savedStreak)   state.streak   = JSON.parse(savedStreak);
+  if (savedHistory)  state.history  = JSON.parse(savedHistory);
+}
+
+// Convertit l'ancien format ('mastered'/'review') vers le nouveau format Leitner
+function migrateProgress(raw) {
+  const migrated = {};
+  Object.keys(raw).forEach(id => {
+    const entry = raw[id];
+    if (typeof entry === 'string') {
+      migrated[id] = {
+        box:        entry === 'mastered' ? 5 : 1,
+        nextReview: todayStr(),
+        lastAction: entry,
+      };
+    } else {
+      migrated[id] = entry;
+    }
+  });
+  return migrated;
 }
 
 // ── Persistance ──────────────────────────────────────
 
-function saveProgress() {
-  localStorage.setItem(LS_PROGRESS, JSON.stringify(state.progress));
+function saveProgress() { localStorage.setItem(LS_PROGRESS, JSON.stringify(state.progress)); }
+function saveCustom()   { localStorage.setItem(LS_CUSTOM,   JSON.stringify(state.custom));   }
+function saveStreak()   { localStorage.setItem(LS_STREAK,   JSON.stringify(state.streak));   }
+function saveHistory()  { localStorage.setItem(LS_HISTORY,  JSON.stringify(state.history));  }
+
+// ── Utilitaires date / texte ─────────────────────────
+
+function todayStr() {
+  const d      = new Date();
+  const offset = d.getTimezoneOffset();
+  return new Date(d.getTime() - offset * 60000).toISOString().slice(0, 10);
 }
 
-function saveCustom() {
-  localStorage.setItem(LS_CUSTOM, JSON.stringify(state.custom));
+function addDays(dateStr, n) {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function normalizeText(s) {
+  return s.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = a[i - 1] === b[j - 1]
+        ? dp[i - 1][j - 1]
+        : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+
+function fuzzyMatch(input, target) {
+  const a = normalizeText(input);
+  const b = normalizeText(target);
+  if (!a) return false;
+  if (a === b) return true;
+  return a.length > 3 && levenshtein(a, b) <= 1;
+}
+
+function speak(text) {
+  if (!('speechSynthesis' in window) || !text) return;
+  try {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ko-KR';
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
+  } catch (e) { /* synthèse vocale indisponible — on ignore */ }
+}
+
+// ── Série de jours (streak) ──────────────────────────
+
+function recordActivity() {
+  const today = todayStr();
+  if (state.streak.lastDate === today) return;
+
+  const yesterday = addDays(today, -1);
+  state.streak.current  = (state.streak.lastDate === yesterday) ? state.streak.current + 1 : 1;
+  state.streak.longest  = Math.max(state.streak.longest, state.streak.current);
+  state.streak.lastDate = today;
+  saveStreak();
 }
 
 // ── Navigation entre vues ────────────────────────────
@@ -59,32 +172,109 @@ function setupNavigation() {
 
       if (target === 'mes-cartes') renderMyCards();
       if (target === 'flashcards') renderFlashcard();
+      if (target === 'stats')      renderStats();
     });
   });
+}
+
+// ── Thème clair / sombre ──────────────────────────────
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+
+function applyInitialTheme() {
+  const saved = localStorage.getItem(LS_THEME);
+  if (saved) {
+    applyTheme(saved);
+  } else {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(prefersDark ? 'dark' : 'light');
+  }
+}
+
+function setupTheme() {
+  document.getElementById('btn-theme-toggle').addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next    = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    localStorage.setItem(LS_THEME, next);
+  });
+}
+
+// ── Catégories ────────────────────────────────────────
+
+function getAllCategories() {
+  const cats = [...new Set(VOCAB.map(c => c.category))];
+  if (state.custom.length > 0) cats.push('Mes Cartes');
+  return cats;
+}
+
+function refreshCategorySelects() {
+  populateSelect(document.getElementById('category-filter'), 'Toutes les catégories');
+  populateSelect(document.getElementById('quiz-category-select'), 'Toutes les catégories');
+}
+
+function populateSelect(selectEl, allLabel) {
+  const previousValue = selectEl.value || 'all';
+  selectEl.innerHTML = '';
+
+  const allOption = document.createElement('option');
+  allOption.value = 'all';
+  allOption.textContent = allLabel;
+  selectEl.appendChild(allOption);
+
+  getAllCategories().forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    selectEl.appendChild(opt);
+  });
+
+  if ([...selectEl.options].some(o => o.value === previousValue)) {
+    selectEl.value = previousValue;
+  }
 }
 
 // ══════════════════════════════════════════════════════
 //  FLASHCARDS
 // ══════════════════════════════════════════════════════
 
-// Renvoie les cartes à afficher selon le filtre actif
-function getFilteredCards() {
-  // On combine les cartes pré-définies et les cartes perso
-  const all = [...VOCAB, ...state.custom.map(c => ({ ...c, category: 'Mes Cartes' }))];
+function getAllCards() {
+  return [...VOCAB, ...state.custom.map(c => ({ ...c, category: 'Mes Cartes' }))];
+}
 
-  if (state.filter === 'mastered') return all.filter(c => state.progress[c.id] === 'mastered');
-  if (state.filter === 'review')   return all.filter(c => state.progress[c.id] === 'review');
-  return all;
+function getFilteredCards() {
+  let cards = getAllCards();
+
+  if (state.categoryFilter !== 'all') {
+    cards = cards.filter(c => c.category === state.categoryFilter);
+  }
+
+  if (state.filter === 'review') {
+    cards = cards.filter(c => state.progress[c.id] && state.progress[c.id].lastAction === 'review');
+  } else if (state.filter === 'mastered') {
+    cards = cards.filter(c => state.progress[c.id] && state.progress[c.id].box === 5);
+  } else {
+    const today = todayStr();
+    cards = [...cards].sort((a, b) => {
+      const dueA = !state.progress[a.id] || state.progress[a.id].nextReview <= today ? 0 : 1;
+      const dueB = !state.progress[b.id] || state.progress[b.id].nextReview <= today ? 0 : 1;
+      return dueA - dueB;
+    });
+  }
+
+  return cards;
 }
 
 function renderFlashcard() {
   const cards = getFilteredCards();
-  const card  = cards[state.currentIndex];
+  currentCard = cards[state.currentIndex] || null;
 
-  // Réinitialiser le flip à chaque changement de carte
   document.getElementById('card-flip').classList.remove('flipped');
 
-  if (!card) {
+  if (!currentCard) {
     document.getElementById('card-hangeul-front').textContent = '🌸';
     document.getElementById('card-category').textContent      = '';
     document.getElementById('card-hangeul-back').textContent  = '';
@@ -92,14 +282,15 @@ function renderFlashcard() {
     document.getElementById('card-translation').textContent   = 'Aucune carte ici';
     document.getElementById('card-current').textContent = '0';
     document.getElementById('card-total').textContent   = '0';
+    updateStats();
     return;
   }
 
-  document.getElementById('card-hangeul-front').textContent = card.hangeul;
-  document.getElementById('card-category').textContent      = card.category || '';
-  document.getElementById('card-hangeul-back').textContent  = card.hangeul;
-  document.getElementById('card-romanisation').textContent  = card.romanisation;
-  document.getElementById('card-translation').textContent   = card.translation;
+  document.getElementById('card-hangeul-front').textContent = currentCard.hangeul;
+  document.getElementById('card-category').textContent      = currentCard.category || '';
+  document.getElementById('card-hangeul-back').textContent  = currentCard.hangeul;
+  document.getElementById('card-romanisation').textContent  = currentCard.romanisation;
+  document.getElementById('card-translation').textContent   = currentCard.translation;
   document.getElementById('card-current').textContent = state.currentIndex + 1;
   document.getElementById('card-total').textContent   = cards.length;
 
@@ -107,25 +298,37 @@ function renderFlashcard() {
 }
 
 function updateStats() {
-  const allCards = [...VOCAB, ...state.custom];
-  const mastered = allCards.filter(c => state.progress[c.id] === 'mastered').length;
-  const review   = allCards.filter(c => state.progress[c.id] === 'review').length;
-  const unseen   = Math.max(0, allCards.length - mastered - review);
+  const allCards = getAllCards();
+  let mastered = 0, review = 0;
+
+  allCards.forEach(c => {
+    const entry = state.progress[c.id];
+    if (entry) {
+      if (entry.box === 5) mastered++;
+      else review++;
+    }
+  });
+
+  const unseen = Math.max(0, allCards.length - mastered - review);
 
   document.getElementById('stat-mastered').textContent = mastered;
   document.getElementById('stat-review').textContent   = review;
   document.getElementById('stat-unseen').textContent   = unseen;
 }
 
-function markCard(status) {
-  const cards = getFilteredCards();
-  const card  = cards[state.currentIndex];
-  if (!card) return;
+function markCard(action) {
+  if (!currentCard) return;
 
-  state.progress[card.id] = status;
+  const entry = state.progress[currentCard.id] || { box: 1, nextReview: todayStr(), lastAction: null };
+
+  entry.box        = action === 'mastered' ? Math.min(5, entry.box + 1) : 1;
+  entry.lastAction = action;
+  entry.nextReview = addDays(todayStr(), LEITNER_INTERVALS[entry.box - 1]);
+
+  state.progress[currentCard.id] = entry;
   saveProgress();
+  recordActivity();
 
-  // Garder l'index dans les bornes après filtrage
   const updated = getFilteredCards();
   if (state.currentIndex >= updated.length) {
     state.currentIndex = Math.max(0, updated.length - 1);
@@ -134,12 +337,10 @@ function markCard(status) {
 }
 
 function setupFlashcards() {
-  // Clic sur la carte → flip
   document.getElementById('card-scene').addEventListener('click', () => {
     document.getElementById('card-flip').classList.toggle('flipped');
   });
 
-  // Navigation
   document.getElementById('btn-prev').addEventListener('click', () => {
     const cards = getFilteredCards();
     if (!cards.length) return;
@@ -154,11 +355,16 @@ function setupFlashcards() {
     renderFlashcard();
   });
 
-  // Progression
   document.getElementById('btn-mastered').addEventListener('click', () => markCard('mastered'));
   document.getElementById('btn-review').addEventListener('click',   () => markCard('review'));
 
-  // Filtres
+  ['speak-front-btn', 'speak-back-btn'].forEach(id => {
+    document.getElementById(id).addEventListener('click', e => {
+      e.stopPropagation();
+      if (currentCard) speak(currentCard.hangeul);
+    });
+  });
+
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -169,10 +375,16 @@ function setupFlashcards() {
     });
   });
 
-  // Raccourcis clavier (actifs uniquement sur la vue flashcards)
+  document.getElementById('category-filter').addEventListener('change', e => {
+    state.categoryFilter = e.target.value;
+    state.currentIndex   = 0;
+    renderFlashcard();
+  });
+
   document.addEventListener('keydown', e => {
     if (!document.getElementById('view-flashcards').classList.contains('active')) return;
     const cards = getFilteredCards();
+    if (!cards.length) return;
 
     if (e.key === 'ArrowRight') {
       state.currentIndex = (state.currentIndex + 1) % cards.length;
@@ -193,25 +405,70 @@ function setupFlashcards() {
 //  QUIZ
 // ══════════════════════════════════════════════════════
 
-const quiz = { questions: [], current: 0, score: 0, answered: false };
+const quiz = {
+  questions: [],
+  current:   0,
+  score:     0,
+  answered:  false,
+  settings:  { category: 'all', count: 5, mode: 'qcm' },
+};
 
 function setupQuiz() {
+  document.getElementById('quiz-category-select').addEventListener('change', e => {
+    quiz.settings.category = e.target.value;
+  });
+
+  document.querySelectorAll('#quiz-count-group .option-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#quiz-count-group .option-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      quiz.settings.count = parseInt(btn.dataset.count, 10);
+    });
+  });
+
+  document.querySelectorAll('#quiz-mode-group .option-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#quiz-mode-group .option-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      quiz.settings.mode = btn.dataset.mode;
+    });
+  });
+
   document.getElementById('btn-start-quiz').addEventListener('click', startQuiz);
   document.getElementById('btn-retry').addEventListener('click', () => {
     document.getElementById('quiz-result').classList.add('hidden');
     document.getElementById('quiz-start').classList.remove('hidden');
   });
+
+  document.getElementById('quiz-speak-btn').addEventListener('click', () => {
+    const q = quiz.questions[quiz.current];
+    if (q) speak(q.hangeul);
+  });
+
+  document.getElementById('quiz-typing-submit').addEventListener('click', submitTypingAnswer);
+  document.getElementById('quiz-typing-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitTypingAnswer();
+  });
 }
 
 function startQuiz() {
-  const allCards = [...VOCAB, ...state.custom.map(c => ({ ...c }))];
-  quiz.questions = shuffle(allCards).slice(0, Math.min(10, allCards.length));
+  let pool = getAllCards();
+  if (quiz.settings.category !== 'all') {
+    pool = pool.filter(c => c.category === quiz.settings.category);
+  }
+
+  const count = Math.min(quiz.settings.count, pool.length);
+  quiz.questions = shuffle(pool).slice(0, count);
   quiz.current   = 0;
   quiz.score     = 0;
 
   document.getElementById('quiz-start').classList.add('hidden');
   document.getElementById('quiz-result').classList.add('hidden');
   document.getElementById('quiz-question').classList.remove('hidden');
+
+  const isTyping = quiz.settings.mode === 'typing';
+  document.getElementById('quiz-choices').classList.toggle('hidden', isTyping);
+  document.getElementById('quiz-typing').classList.toggle('hidden', !isTyping);
 
   renderQuizQuestion();
 }
@@ -220,20 +477,26 @@ function renderQuizQuestion() {
   const q = quiz.questions[quiz.current];
   quiz.answered = false;
 
-  // Barre de progression
   const pct = (quiz.current / quiz.questions.length) * 100;
   document.getElementById('quiz-progress-fill').style.width = `${pct}%`;
-  document.getElementById('quiz-q-num').textContent       = quiz.current + 1;
   document.getElementById('quiz-score-live').textContent  = quiz.score;
+  document.querySelector('.quiz-meta span').innerHTML =
+    `Question <strong id="quiz-q-num">${quiz.current + 1}</strong>/${quiz.questions.length}`;
 
-  // Mot à deviner
   document.getElementById('quiz-hangeul').textContent      = q.hangeul;
   document.getElementById('quiz-romanisation').textContent = q.romanisation;
 
-  // 4 choix : 1 correct + 3 leurres parmi toutes les cartes
-  const allCards    = [...VOCAB, ...state.custom];
+  if (quiz.settings.mode === 'typing') {
+    renderTypingQuestion();
+  } else {
+    renderQcmQuestion(q);
+  }
+}
+
+function renderQcmQuestion(q) {
+  const allCards    = getAllCards();
   const distractors = shuffle(allCards.filter(c => String(c.id) !== String(q.id))).slice(0, 3);
-  const choices     = shuffle([q, ...distractors]);
+  const choices      = shuffle([q, ...distractors]);
 
   const container = document.getElementById('quiz-choices');
   container.innerHTML = '';
@@ -249,34 +512,69 @@ function renderQuizQuestion() {
       quiz.answered = true;
 
       const isCorrect = String(choice.id) === String(q.id);
-
       if (isCorrect) {
         btn.classList.add('correct');
         quiz.score++;
       } else {
         btn.classList.add('wrong');
-        // Montrer la bonne réponse
         container.querySelectorAll('.choice-btn').forEach(b => {
           if (b.dataset.id === String(q.id)) b.classList.add('correct');
         });
       }
 
-      // Désactiver tous les boutons pendant le délai
       container.querySelectorAll('.choice-btn').forEach(b => (b.disabled = true));
-
-      // Passer à la question suivante après 1,2 s
-      setTimeout(() => {
-        quiz.current++;
-        if (quiz.current < quiz.questions.length) {
-          renderQuizQuestion();
-        } else {
-          showQuizResult();
-        }
-      }, 1200);
+      setTimeout(goToNextQuestion, 1200);
     });
 
     container.appendChild(btn);
   });
+}
+
+function renderTypingQuestion() {
+  const input    = document.getElementById('quiz-typing-input');
+  const feedback = document.getElementById('quiz-typing-feedback');
+
+  input.value    = '';
+  input.disabled = false;
+  feedback.classList.add('hidden');
+  feedback.className = 'typing-feedback hidden';
+  document.getElementById('quiz-typing-submit').disabled = false;
+
+  setTimeout(() => input.focus(), 50);
+}
+
+function submitTypingAnswer() {
+  if (quiz.answered) return;
+  quiz.answered = true;
+
+  const q        = quiz.questions[quiz.current];
+  const input    = document.getElementById('quiz-typing-input');
+  const feedback = document.getElementById('quiz-typing-feedback');
+  const isCorrect = fuzzyMatch(input.value, q.translation);
+
+  if (isCorrect) {
+    quiz.score++;
+    feedback.textContent = '✓ Correct !';
+    feedback.className   = 'typing-feedback correct';
+  } else {
+    feedback.textContent = `✗ La réponse était : ${q.translation}`;
+    feedback.className   = 'typing-feedback wrong';
+  }
+  feedback.classList.remove('hidden');
+
+  input.disabled = true;
+  document.getElementById('quiz-typing-submit').disabled = true;
+
+  setTimeout(goToNextQuestion, 1400);
+}
+
+function goToNextQuestion() {
+  quiz.current++;
+  if (quiz.current < quiz.questions.length) {
+    renderQuizQuestion();
+  } else {
+    showQuizResult();
+  }
 }
 
 function showQuizResult() {
@@ -289,34 +587,39 @@ function showQuizResult() {
   const ratio = score / total;
 
   document.getElementById('result-score-num').textContent = score;
+  document.querySelector('.result-total').textContent = `/${total}`;
 
   let emoji, title, message;
-
   if (ratio === 1) {
-    emoji   = '🏆';
-    title   = 'Parfait !';
-    message = '잘했어요 ! (Jal haesseoyo !) — Vous n\'avez fait aucune erreur !';
+    emoji = '🏆'; title = 'Parfait !';
+    message = "잘했어요 ! (Jal haesseoyo !) — Vous n'avez fait aucune erreur !";
   } else if (ratio >= 0.8) {
-    emoji   = '🎉';
-    title   = 'Excellent !';
+    emoji = '🎉'; title = 'Excellent !';
     message = '아주 잘했어요 ! (Aju jal haesseoyo !) — Encore un petit effort !';
   } else if (ratio >= 0.6) {
-    emoji   = '😊';
-    title   = 'Bien joué !';
+    emoji = '😊'; title = 'Bien joué !';
     message = '계속 공부하세요 ! (Gyesok gongbuhaseyo !) — Continuez à pratiquer !';
   } else if (ratio >= 0.4) {
-    emoji   = '💪';
-    title   = 'Courage !';
-    message = '더 연습해요 ! (Deo yeonseupaeyo !) — Il faut s\'entraîner davantage.';
+    emoji = '💪'; title = 'Courage !';
+    message = "더 연습해요 ! (Deo yeonseupaeyo !) — Il faut s'entraîner davantage.";
   } else {
-    emoji   = '📚';
-    title   = 'À revoir !';
+    emoji = '📚'; title = 'À revoir !';
     message = '처음부터 시작해요 ! — Recommencez depuis le début, vous allez y arriver !';
   }
 
   document.getElementById('result-emoji').textContent   = emoji;
   document.getElementById('result-title').textContent   = title;
   document.getElementById('result-message').textContent = message;
+
+  state.history.unshift({
+    date:     new Date().toISOString(),
+    score, total,
+    mode:     quiz.settings.mode,
+    category: quiz.settings.category,
+  });
+  state.history = state.history.slice(0, 20);
+  saveHistory();
+  recordActivity();
 }
 
 // ══════════════════════════════════════════════════════
@@ -324,19 +627,19 @@ function showQuizResult() {
 // ══════════════════════════════════════════════════════
 
 function setupMesCartes() {
-  document.getElementById('btn-add-card').addEventListener('click', addCard);
+  document.getElementById('btn-add-card').addEventListener('click', saveCard);
+  document.getElementById('btn-cancel-edit').addEventListener('click', cancelEdit);
 
-  // Ajouter une carte en appuyant sur Entrée depuis n'importe quel champ
   ['input-hangeul', 'input-roman', 'input-translation'].forEach(id => {
     document.getElementById(id).addEventListener('keydown', e => {
-      if (e.key === 'Enter') addCard();
+      if (e.key === 'Enter') saveCard();
     });
   });
 
   renderMyCards();
 }
 
-function addCard() {
+function saveCard() {
   const hangeul      = document.getElementById('input-hangeul').value.trim();
   const romanisation = document.getElementById('input-roman').value.trim();
   const translation  = document.getElementById('input-translation').value.trim();
@@ -346,23 +649,46 @@ function addCard() {
     errorEl.classList.remove('hidden');
     return;
   }
-
   errorEl.classList.add('hidden');
 
-  state.custom.push({
-    id:            `custom_${Date.now()}`,
-    hangeul,
-    romanisation,
-    translation,
-    category:      'Mes Cartes',
-  });
+  if (editingId) {
+    const card = state.custom.find(c => c.id === editingId);
+    if (card) { card.hangeul = hangeul; card.romanisation = romanisation; card.translation = translation; }
+    cancelEdit();
+  } else {
+    state.custom.push({ id: `custom_${Date.now()}`, hangeul, romanisation, translation });
+    clearForm();
+  }
 
   saveCustom();
+  refreshCategorySelects();
+  renderMyCards();
+}
 
+function clearForm() {
   document.getElementById('input-hangeul').value     = '';
   document.getElementById('input-roman').value       = '';
   document.getElementById('input-translation').value = '';
+}
 
+function startEdit(card) {
+  editingId = card.id;
+  document.getElementById('input-hangeul').value      = card.hangeul;
+  document.getElementById('input-roman').value        = card.romanisation;
+  document.getElementById('input-translation').value  = card.translation;
+  document.getElementById('form-title-text').textContent = 'Modifier la carte';
+  document.getElementById('btn-add-card').textContent     = 'Enregistrer les modifications';
+  document.getElementById('btn-cancel-edit').classList.remove('hidden');
+  document.getElementById('input-hangeul').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  renderMyCards();
+}
+
+function cancelEdit() {
+  editingId = null;
+  clearForm();
+  document.getElementById('form-title-text').textContent = 'Ajouter une carte';
+  document.getElementById('btn-add-card').textContent     = '+ Ajouter la carte';
+  document.getElementById('btn-cancel-edit').classList.add('hidden');
   renderMyCards();
 }
 
@@ -371,6 +697,8 @@ function deleteCard(id) {
   delete state.progress[id];
   saveCustom();
   saveProgress();
+  if (editingId === id) cancelEdit();
+  refreshCategorySelects();
   renderMyCards();
 }
 
@@ -394,12 +722,16 @@ function renderMyCards() {
 
   state.custom.forEach(card => {
     const item = document.createElement('div');
-    item.className = 'my-card-item';
+    item.className = 'my-card-item' + (editingId === card.id ? ' editing' : '');
     item.innerHTML = `
-      <button class="btn-delete" title="Supprimer cette carte">✕</button>
+      <div class="my-card-actions">
+        <button class="btn-edit"   title="Modifier cette carte">✎</button>
+        <button class="btn-delete" title="Supprimer cette carte">✕</button>
+      </div>
       <div class="my-card-kr">${card.hangeul}</div>
       <div class="my-card-roman">${card.romanisation}</div>
       <div class="my-card-translation">${card.translation}</div>`;
+    item.querySelector('.btn-edit').addEventListener('click', () => startEdit(card));
     item.querySelector('.btn-delete').addEventListener('click', () => deleteCard(card.id));
     grid.appendChild(item);
   });
@@ -408,16 +740,57 @@ function renderMyCards() {
   container.appendChild(grid);
 }
 
-// ── Utilitaires ──────────────────────────────────────
+// ══════════════════════════════════════════════════════
+//  STATS
+// ══════════════════════════════════════════════════════
 
-// Mélange un tableau (algorithme Fisher-Yates)
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+function renderStats() {
+  document.getElementById('streak-current').textContent = state.streak.current;
+  document.getElementById('streak-longest').textContent = state.streak.longest;
+
+  const allCards = getAllCards();
+  const mastered = allCards.filter(c => state.progress[c.id] && state.progress[c.id].box === 5).length;
+  const total    = allCards.length;
+  const pct      = total ? Math.round((mastered / total) * 100) : 0;
+
+  document.getElementById('mastery-bar-fill').style.width = `${pct}%`;
+  document.getElementById('mastery-text').textContent = `${mastered} / ${total} mots maîtrisés`;
+
+  renderHistoryChart();
+}
+
+function renderHistoryChart() {
+  const container = document.getElementById('history-container');
+
+  if (state.history.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-emoji">📊</div>
+        <p>Aucun quiz pour l'instant.<br>Lancez-en un pour voir vos résultats ici !</p>
+      </div>`;
+    return;
   }
-  return a;
+
+  const recent = state.history.slice(0, 8).reverse();
+
+  const chart = document.createElement('div');
+  chart.className = 'history-chart';
+
+  recent.forEach(entry => {
+    const pct = Math.round((entry.score / entry.total) * 100);
+    const date = new Date(entry.date);
+    const dateLabel = `${date.getDate()}/${date.getMonth() + 1}`;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'history-bar-wrap';
+    wrap.innerHTML = `
+      <div class="history-bar" style="height:${pct}%" title="${dateLabel} — ${entry.score}/${entry.total}"></div>
+      <span class="history-bar-label">${dateLabel}</span>`;
+    chart.appendChild(wrap);
+  });
+
+  container.innerHTML = '';
+  container.appendChild(chart);
 }
 
 // ── Lancement ────────────────────────────────────────
