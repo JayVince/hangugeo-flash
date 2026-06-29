@@ -274,7 +274,7 @@ function getFilteredCards() {
   if (state.filter === 'review') {
     cards = cards.filter(c => state.progress[c.id] && state.progress[c.id].lastAction === 'review');
   } else if (state.filter === 'mastered') {
-    cards = cards.filter(c => state.progress[c.id] && state.progress[c.id].box === 5);
+    cards = cards.filter(c => state.progress[c.id] && state.progress[c.id].lastAction === 'mastered');
   } else {
     const today = todayStr();
     cards = [...cards].sort((a, b) => {
@@ -323,8 +323,8 @@ function updateStats() {
   allCards.forEach(c => {
     const entry = state.progress[c.id];
     if (entry) {
-      if (entry.box === 5) mastered++;
-      else review++;
+      if (entry.lastAction === 'mastered') mastered++;
+      else if (entry.lastAction === 'review') review++;
     }
   });
 
@@ -768,7 +768,7 @@ function renderStats() {
   document.getElementById('streak-longest').textContent = state.streak.longest;
 
   const allCards = getAllCards();
-  const mastered = allCards.filter(c => state.progress[c.id] && state.progress[c.id].box === 5).length;
+  const mastered = allCards.filter(c => state.progress[c.id] && state.progress[c.id].lastAction === 'mastered').length;
   const total    = allCards.length;
   const pct      = total ? Math.round((mastered / total) * 100) : 0;
 

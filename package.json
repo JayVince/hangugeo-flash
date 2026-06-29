@@ -11,8 +11,5 @@
   },
   "dependencies": {
     "express": "^4.18.2"
-  },
-"scripts": {
-    "postinstall": "node scripts/warm-audio-cache.js"
   }
 }
