@@ -1,112 +1,156 @@
 # Déploiement de 한국어 Flash (OppaLingo) sur Hostinger
 
 Ce guide explique comment publier l'application sur **oppalingo.com** via
-l'hébergement Node.js de Hostinger (hPanel).
+l'hébergement Node.js de Hostinger (hPanel), avec base de données MySQL et
+comptes utilisateurs.
 
 ## Prérequis
 
-- Un plan d'hébergement Hostinger qui inclut **Node.js** (Business / Cloud,
-  ou VPS). Le nom de domaine `oppalingo.com` doit déjà être ajouté ou pointé
-  vers ce compte d'hébergement.
-- Le code source de ce projet (ce dossier complet) prêt à être envoyé sur
-  GitHub ou via gestionnaire de fichiers / SFTP.
+- Un plan d'hébergement Hostinger qui inclut **Node.js** et **MySQL**
+  (Business / Cloud, ou VPS). Le nom de domaine `oppalingo.com` doit déjà
+  être ajouté ou pointé vers ce compte d'hébergement.
+- Le code source de ce projet, prêt à être envoyé sur GitHub ou via
+  gestionnaire de fichiers / SFTP.
 
-## Étape 1 — Mettre le code sur GitHub (recommandé)
+## Étape 1 — Créer la base de données MySQL
+
+1. Dans **hPanel** → **Bases de données** → **Bases de données MySQL**.
+2. Cliquez sur **Créer une nouvelle base de données**. Notez :
+   - le **nom de la base** (ex. `u123456789_hangugeo`)
+   - le **nom d'utilisateur** et le **mot de passe** associés
+   - l'**hôte** (généralement `localhost` chez Hostinger)
+3. Ces informations serviront à remplir les variables `DB_*` à l'étape 4.
+
+## Étape 2 — Créer une boîte mail pour l'envoi des e-mails
+
+Nécessaire pour la fonctionnalité « mot de passe oublié ».
+
+1. Dans **hPanel** → **E-mails** → **Comptes e-mail**.
+2. Créez une adresse, par exemple `noreply@oppalingo.com`, avec un mot de
+   passe.
+3. Notez les paramètres SMTP sortants (visibles dans hPanel → E-mails →
+   Configurer le client de messagerie) : généralement
+   `smtp.hostinger.com`, port `465` (SSL).
+
+## Étape 3 — Créer l'application Node.js dans hPanel
+
+1. **hPanel** → **Avancé** → **Node.js** → **Créer une application**.
+2. Renseignez :
+   - **Version de Node.js** : 18.x ou plus récente
+   - **Racine de l'application** : dossier où le code sera déployé
+   - **Domaine** : `oppalingo.com`
+   - **Fichier de démarrage** : `server.js`
+
+## Étape 4 — Configurer les variables d'environnement
+
+Toujours dans hPanel → Node.js → votre application → **Variables
+d'environnement**, ajoutez (voir aussi `.env.example`) :
+
+| Variable | Valeur |
+|---|---|
+| `DB_HOST` | `localhost` (ou l'hôte donné à l'étape 1) |
+| `DB_PORT` | `3306` |
+| `DB_USER` | l'utilisateur MySQL créé à l'étape 1 |
+| `DB_PASSWORD` | le mot de passe MySQL créé à l'étape 1 |
+| `DB_NAME` | le nom de la base créée à l'étape 1 |
+| `JWT_SECRET` | une valeur aléatoire longue (voir commande ci-dessous) |
+| `SMTP_HOST` | `smtp.hostinger.com` |
+| `SMTP_PORT` | `465` |
+| `SMTP_USER` | `noreply@oppalingo.com` |
+| `SMTP_PASSWORD` | le mot de passe de cette boîte mail |
+| `SMTP_FROM` | `한국어 Flash <noreply@oppalingo.com>` |
+| `APP_URL` | `https://oppalingo.com` |
+| `NODE_ENV` | `production` |
+
+Pour générer une valeur sûre pour `JWT_SECRET`, en local ou en SSH :
 
 ```bash
-git init
-git add .
-git commit -m "Initial commit — 한국어 Flash by OppaLingo"
-git branch -M main
-git remote add origin https://github.com/VOTRE_PSEUDO/hangugeo-flash.git
-git push -u origin main
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 ```
 
-## Étape 2 — Créer l'application Node.js dans hPanel
+**Ne committez jamais de vraies valeurs dans `.env` sur GitHub** —
+`.env.example` est un modèle vide à titre indicatif ; `.env` est exclu via
+`.gitignore`.
 
-1. Connectez-vous à **hPanel** → menu **Avancé** → **Node.js**.
-2. Cliquez sur **Créer une application**.
-3. Renseignez :
-   - **Version de Node.js** : 18.x ou plus récente (voir `engines` dans `package.json`)
-   - **Racine de l'application** : le dossier où le code sera déployé (ex. `oppalingo.com`)
-   - **Domaine** : sélectionnez `oppalingo.com`
-   - **Fichier de démarrage de l'application** : `server.js`
-4. Validez la création.
+## Étape 5 — Envoyer les fichiers
 
-## Étape 3 — Envoyer les fichiers
+- **Git** : dans hPanel, utilisez « Déployer depuis Git » si disponible.
+- **SFTP / gestionnaire de fichiers** : uploadez tout le contenu de ce
+  dossier (sauf `node_modules/`) dans la racine de l'application.
 
-- **Option A — Git** : dans hPanel, utilisez l'option « Déployer depuis Git »
-  si disponible, en pointant vers votre dépôt GitHub.
-- **Option B — Gestionnaire de fichiers / SFTP** : uploadez tout le contenu
-  de ce dossier (sauf `node_modules/`, qui sera généré) dans la racine de
-  l'application configurée à l'étape 2.
+## Étape 6 — Installer les dépendances et préparer la base
 
-## Étape 4 — Installer les dépendances
+Via le terminal SSH fourni par hPanel, à la racine du projet :
 
-Dans l'interface Node.js de hPanel, cliquez sur **NPM Install** (ou ouvrez le
-terminal SSH fourni et lancez `npm install` à la racine du projet). Cela
-installe Express à partir de `package.json`.
+```bash
+npm install              # installe toutes les dépendances
+npm run migrate           # crée les tables (users, vocab, progress, etc.)
+npm run seed-vocab        # insère les 270 mots du programme
+```
 
-## Étape 5 — Démarrer / redémarrer l'application
+Ces deux scripts sont **sûrs à relancer** à tout moment (aucune donnée
+existante n'est dupliquée ou perdue).
 
-Cliquez sur **Restart App** (ou **Démarrer**) dans hPanel. Hostinger attribue
-automatiquement un port à l'application via la variable d'environnement
-`PORT` — `server.js` la lit déjà correctement (`process.env.PORT`), aucune
-configuration supplémentaire n'est nécessaire.
+## Étape 7 — Démarrer l'application
 
-## Étape 6 — Vérifier le domaine
+Cliquez sur **Restart App** dans hPanel. `server.js` lit automatiquement
+le port fourni par Hostinger (`process.env.PORT`).
 
-Rendez-vous sur **https://oppalingo.com** — l'application doit s'afficher.
-Si le domaine ne répond pas immédiatement, vérifiez :
-- que les **DNS** d'`oppalingo.com` pointent bien vers Hostinger ;
-- que le **SSL** (Let's Encrypt, gratuit chez Hostinger) est activé pour le
-  domaine, dans hPanel → **SSL**.
+## Étape 8 — Vérifier le domaine
+
+Rendez-vous sur **https://oppalingo.com** :
+- vous devez arriver sur la page de **connexion/inscription** ;
+- créez un compte de test, vérifiez l'accès à l'application ;
+- vérifiez que les **DNS** et le **SSL** (Let's Encrypt, gratuit) sont bien
+  actifs dans hPanel → SSL si le domaine ne répond pas immédiatement.
+
+## Étape 9 (recommandée) — Pré-générer l'audio des 270 mots
+
+```bash
+npm run warm-audio
+```
+
+Génère et met en cache la prononciation des mots du programme, pour un son
+instantané dès les premières visites (voir la section *Prononciation
+audio* ci-dessous).
 
 ## Mises à jour futures
 
-Pour publier une nouvelle version :
-1. Poussez vos modifications sur GitHub (`git push`).
-2. Dans hPanel → Node.js, cliquez sur **Pull** (si déploiement Git) ou
-   réenvoyez les fichiers modifiés via SFTP.
-3. Relancez **NPM Install** si `package.json` a changé.
-4. Cliquez sur **Restart App**.
+1. Poussez vos modifications (`git push`) ou réenvoyez les fichiers modifiés.
+2. `npm install` si `package.json` a changé.
+3. `npm run migrate` si le schéma de base a évolué (sans risque, idempotent).
+4. **Restart App**.
 
 ## Notes techniques
 
-- L'application est servie par un petit serveur Express. Elle contient
-  désormais une route `/api/tts` qui nécessite un **accès internet sortant**
-  depuis le serveur Hostinger (déjà disponible par défaut).
-- Toutes les données utilisateur (cartes personnalisées, progression, série
-  de jours, historique des quiz) sont stockées dans le **localStorage du
-  navigateur** : elles restent sur l'appareil de chaque visiteur, rien n'est
-  envoyé ni stocké côté serveur Hostinger.
+- **Architecture** : Express + MySQL (via `mysql2`), authentification par
+  cookie de session signé (JWT), mots de passe hachés avec `bcrypt`.
+- **Toutes les données utilisateur** (compte, progression, cartes
+  personnalisées, séries, historique de quiz) sont désormais stockées en
+  base de données MySQL et **synchronisées entre tous les appareils** d'un
+  même utilisateur connecté.
+- Seule la préférence de **thème clair/sombre** reste locale à chaque
+  appareil/navigateur (choix volontaire, non synchronisé).
+- La route `/api/tts` nécessite un accès internet sortant depuis le
+  serveur (déjà disponible par défaut chez Hostinger).
 
-## Prononciation audio (nouveau)
+## Prononciation audio
 
-L'application utilise désormais un moteur de synthèse vocale neuronal
-(Google Translate TTS) au lieu de la voix robotique du navigateur, avec un
-système de cache automatique :
+L'application utilise un moteur de synthèse vocale neuronal (Google
+Translate TTS) avec mise en cache automatique sur disque
+(`public/audio/cache/`) : le premier visiteur à écouter un mot déclenche sa
+génération, tous les suivants l'entendent instantanément. En cas
+d'indisponibilité du service, repli automatique et invisible sur la voix du
+navigateur.
 
-- Le **premier** visiteur à écouter un mot déclenche sa génération (~1 seconde).
-- Le fichier est ensuite **sauvegardé** dans `public/audio/cache/` — tous les
-  visiteurs suivants l'entendent instantanément, sans nouvel appel réseau.
-- Si le service est temporairement indisponible, l'application se replie
-  automatiquement sur la voix du navigateur (aucune erreur visible pour
-  l'utilisateur).
+## Sécurité — résumé
 
-**Étape recommandée après le premier déploiement** : pré-générer l'audio des
-60 mots du programme pour que tout le monde ait un son instantané dès le
-lancement, plutôt que d'attendre que chaque mot soit demandé une première
-fois. Via le terminal SSH fourni par Hostinger, à la racine du projet :
-
-```bash
-node scripts/warm-audio-cache.js
-```
-
-Ce script est sûr à relancer à tout moment (il ignore les fichiers déjà en
-cache) et ne fait rien d'autre que remplir `public/audio/cache/`.
-
-**Important** : assurez-vous que le dossier `public/audio/cache/` est
-accessible en écriture par l'application (c'est le cas par défaut chez
-Hostinger pour les fichiers de votre propre application).
-
+- Mots de passe **jamais stockés en clair** (hachage bcrypt, 12 tours).
+- Jetons de réinitialisation de mot de passe à **usage unique**, valables
+  1 heure, stockés sous forme de hachage (jamais en clair en base).
+- Les réponses à « mot de passe oublié » sont **identiques** que l'e-mail
+  existe ou non (pas de fuite d'information sur les comptes existants).
+- Cookie de session `httpOnly` (inaccessible en JavaScript côté client) et
+  `secure` en production (transmis uniquement en HTTPS).
+- Toutes les routes de données vérifient que la ressource demandée
+  appartient bien à l'utilisateur connecté (isolation stricte testée).

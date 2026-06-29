@@ -1,100 +1,99 @@
 /* =====================================================
    한국어 Flash by OppaLingo — Script principal
-   Modules : Flashcards · Quiz · Mes Cartes · Stats
+   Toutes les données utilisateur sont synchronisées via l'API
+   (base de données) ; seul le thème clair/sombre reste local.
 ===================================================== */
 
-// ── Données ─────────────────────────────────────────
+const LS_THEME = 'hgflash_theme'; // préférence d'appareil uniquement
 
-const VOCAB = JSON.parse(document.getElementById('vocab-data').textContent);
-
-// Clés de sauvegarde localStorage
-const LS_PROGRESS = 'hgflash_progress';
-const LS_CUSTOM   = 'hgflash_custom';
-const LS_THEME    = 'hgflash_theme';
-const LS_HISTORY  = 'hgflash_history';
-const LS_STREAK   = 'hgflash_streak';
-
-// Intervalles (en jours) du système Leitner à 5 boîtes
+// Intervalles (en jours) du système Leitner à 5 boîtes — affichage
+// uniquement ; le calcul faisant autorité se fait côté serveur.
 const LEITNER_INTERVALS = [0, 1, 3, 7, 14];
 
-// État global de l'application
 const state = {
-  progress:       {},
-  custom:         [],
+  vocab:          [],   // mots du programme (depuis /api/vocab)
+  custom:         [],   // cartes personnalisées (depuis /api/cards)
+  progress:       {},   // clé "type_id" → { box, lastAction, nextReview }
+  streak:         { current: 0, longest: 0 },
   filter:         'all',
   categoryFilter: 'all',
   currentIndex:   0,
-  streak:         { current: 0, longest: 0, lastDate: null },
-  history:        [],
+  user:           null,
 };
 
 let currentCard = null;
 let editingId    = null;
 
+// ── Appels API ────────────────────────────────────────
+
+async function apiRequest(method, url, body) {
+  const res = await fetch(url, {
+    method,
+    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    credentials: 'same-origin',
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (res.status === 401) {
+    window.location.href = '/login';
+    throw new Error('Session expirée');
+  }
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `Erreur ${res.status}`);
+  return data;
+}
+
+const apiGet    = (url) => apiRequest('GET', url);
+const apiPost   = (url, body) => apiRequest('POST', url, body);
+const apiPut    = (url, body) => apiRequest('PUT', url, body);
+const apiDelete = (url) => apiRequest('DELETE', url);
+
 // ── Initialisation ───────────────────────────────────
 
-function init() {
-  loadFromStorage();
+async function init() {
   applyInitialTheme();
-
-  setupNavigation();
   setupTheme();
+  setupNavigation();
+  setupAccountMenu();
+
+  try {
+    const [meRes, vocabRes, cardsRes, progressRes, streakRes] = await Promise.all([
+      apiGet('/api/auth/me'),
+      apiGet('/api/vocab'),
+      apiGet('/api/cards'),
+      apiGet('/api/progress'),
+      apiGet('/api/streak'),
+    ]);
+
+    state.user   = meRes.user;
+    state.vocab  = vocabRes.vocab;
+    state.custom = cardsRes.cards;
+    state.streak = streakRes.streak;
+
+    state.progress = {};
+    progressRes.progress.forEach((p) => {
+      state.progress[`${p.cardType}_${p.cardId}`] = p;
+    });
+
+    renderUserChip();
+  } catch (e) {
+    console.error('Échec du chargement initial :', e.message);
+    return; // apiRequest redirige déjà vers /login en cas de 401
+  }
+
   setupFlashcards();
   setupQuiz();
   setupMesCartes();
-
   refreshCategorySelects();
 }
-
-function loadFromStorage() {
-  const savedProgress = localStorage.getItem(LS_PROGRESS);
-  const savedCustom   = localStorage.getItem(LS_CUSTOM);
-  const savedStreak   = localStorage.getItem(LS_STREAK);
-  const savedHistory  = localStorage.getItem(LS_HISTORY);
-
-  if (savedProgress) state.progress = migrateProgress(JSON.parse(savedProgress));
-  if (savedCustom)   state.custom   = JSON.parse(savedCustom);
-  if (savedStreak)   state.streak   = JSON.parse(savedStreak);
-  if (savedHistory)  state.history  = JSON.parse(savedHistory);
-}
-
-// Convertit l'ancien format ('mastered'/'review') vers le nouveau format Leitner
-function migrateProgress(raw) {
-  const migrated = {};
-  Object.keys(raw).forEach(id => {
-    const entry = raw[id];
-    if (typeof entry === 'string') {
-      migrated[id] = {
-        box:        entry === 'mastered' ? 5 : 1,
-        nextReview: todayStr(),
-        lastAction: entry,
-      };
-    } else {
-      migrated[id] = entry;
-    }
-  });
-  return migrated;
-}
-
-// ── Persistance ──────────────────────────────────────
-
-function saveProgress() { localStorage.setItem(LS_PROGRESS, JSON.stringify(state.progress)); }
-function saveCustom()   { localStorage.setItem(LS_CUSTOM,   JSON.stringify(state.custom));   }
-function saveStreak()   { localStorage.setItem(LS_STREAK,   JSON.stringify(state.streak));   }
-function saveHistory()  { localStorage.setItem(LS_HISTORY,  JSON.stringify(state.history));  }
 
 // ── Utilitaires date / texte ─────────────────────────
 
 function todayStr() {
-  const d      = new Date();
+  const d = new Date();
   const offset = d.getTimezoneOffset();
   return new Date(d.getTime() - offset * 60000).toISOString().slice(0, 10);
-}
-
-function addDays(dateStr, n) {
-  const d = new Date(dateStr);
-  d.setDate(d.getDate() + n);
-  return d.toISOString().slice(0, 10);
 }
 
 function shuffle(arr) {
@@ -133,10 +132,10 @@ function fuzzyMatch(input, target) {
   return a.length > 3 && levenshtein(a, b) <= 1;
 }
 
-// Lecteur audio partagé (élément caché dans index.html)
+// ── Audio (prononciation) ────────────────────────────
+
 const audioPlayer = document.getElementById('audio-player');
 
-// Repli : synthèse vocale du navigateur (qualité robotique, mais toujours disponible)
 function browserSpeak(text) {
   if (!('speechSynthesis' in window) || !text) return;
   try {
@@ -148,43 +147,52 @@ function browserSpeak(text) {
   } catch (e) { /* synthèse vocale indisponible — on ignore */ }
 }
 
-// Prononciation principale : passe par le proxy TTS (voix neuronale, mise en cache
-// côté serveur). En cas d'échec réseau ou de service indisponible, on se replie
-// automatiquement sur la synthèse vocale du navigateur.
 function speak(card) {
   if (!card || !card.hangeul || !audioPlayer) return;
-
   audioPlayer.onerror = () => browserSpeak(card.hangeul);
   audioPlayer.src = `/api/tts?text=${encodeURIComponent(card.hangeul)}`;
-
   const playPromise = audioPlayer.play();
   if (playPromise && typeof playPromise.catch === 'function') {
     playPromise.catch(() => browserSpeak(card.hangeul));
   }
 }
 
-// ── Série de jours (streak) ──────────────────────────
+// ── Compte utilisateur ────────────────────────────────
 
-function recordActivity() {
-  const today = todayStr();
-  if (state.streak.lastDate === today) return;
+function renderUserChip() {
+  if (!state.user) return;
+  document.getElementById('user-avatar').textContent = state.user.avatar;
+  document.getElementById('user-username').textContent = state.user.username;
+  document.getElementById('account-email').textContent = state.user.email;
+}
 
-  const yesterday = addDays(today, -1);
-  state.streak.current  = (state.streak.lastDate === yesterday) ? state.streak.current + 1 : 1;
-  state.streak.longest  = Math.max(state.streak.longest, state.streak.current);
-  state.streak.lastDate = today;
-  saveStreak();
+function setupAccountMenu() {
+  const chip = document.getElementById('user-chip');
+  const menu = document.getElementById('account-menu');
+
+  chip.addEventListener('click', () => menu.classList.toggle('hidden'));
+
+  document.addEventListener('click', (e) => {
+    if (!menu.contains(e.target) && e.target !== chip && !chip.contains(e.target)) {
+      menu.classList.add('hidden');
+    }
+  });
+
+  document.getElementById('btn-logout').addEventListener('click', async () => {
+    await apiPost('/api/auth/logout').catch(() => {});
+    window.location.href = '/login';
+  });
 }
 
 // ── Navigation entre vues ────────────────────────────
 
 function setupNavigation() {
-  document.querySelectorAll('.nav-btn').forEach(btn => {
+  document.querySelectorAll('.nav-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       const target = btn.dataset.view;
 
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach((b) => b.classList.remove('active'));
+      document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
 
       btn.classList.add('active');
       document.getElementById(`view-${target}`).classList.add('active');
@@ -196,7 +204,7 @@ function setupNavigation() {
   });
 }
 
-// ── Thème clair / sombre ──────────────────────────────
+// ── Thème clair / sombre (préférence locale à l'appareil) ─
 
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
@@ -225,7 +233,7 @@ function setupTheme() {
 // ── Catégories ────────────────────────────────────────
 
 function getAllCategories() {
-  const cats = [...new Set(VOCAB.map(c => c.category))];
+  const cats = [...new Set(state.vocab.map((c) => c.category))];
   if (state.custom.length > 0) cats.push('Mes Cartes');
   return cats;
 }
@@ -244,14 +252,14 @@ function populateSelect(selectEl, allLabel) {
   allOption.textContent = allLabel;
   selectEl.appendChild(allOption);
 
-  getAllCategories().forEach(cat => {
+  getAllCategories().forEach((cat) => {
     const opt = document.createElement('option');
     opt.value = cat;
     opt.textContent = cat;
     selectEl.appendChild(opt);
   });
 
-  if ([...selectEl.options].some(o => o.value === previousValue)) {
+  if ([...selectEl.options].some((o) => o.value === previousValue)) {
     selectEl.value = previousValue;
   }
 }
@@ -261,25 +269,33 @@ function populateSelect(selectEl, allLabel) {
 // ══════════════════════════════════════════════════════
 
 function getAllCards() {
-  return [...VOCAB, ...state.custom.map(c => ({ ...c, category: 'Mes Cartes' }))];
+  const vocabCards  = state.vocab.map((c) => ({ ...c, type: 'vocab' }));
+  const customCards = state.custom.map((c) => ({ ...c, type: 'custom', category: 'Mes Cartes' }));
+  return [...vocabCards, ...customCards];
+}
+
+function progressKey(card) {
+  return `${card.type}_${card.id}`;
 }
 
 function getFilteredCards() {
   let cards = getAllCards();
 
   if (state.categoryFilter !== 'all') {
-    cards = cards.filter(c => c.category === state.categoryFilter);
+    cards = cards.filter((c) => c.category === state.categoryFilter);
   }
 
   if (state.filter === 'review') {
-    cards = cards.filter(c => state.progress[c.id] && state.progress[c.id].lastAction === 'review');
+    cards = cards.filter((c) => state.progress[progressKey(c)] && state.progress[progressKey(c)].lastAction === 'review');
   } else if (state.filter === 'mastered') {
-    cards = cards.filter(c => state.progress[c.id] && state.progress[c.id].lastAction === 'mastered');
+    cards = cards.filter((c) => state.progress[progressKey(c)] && state.progress[progressKey(c)].lastAction === 'mastered');
   } else {
     const today = todayStr();
     cards = [...cards].sort((a, b) => {
-      const dueA = !state.progress[a.id] || state.progress[a.id].nextReview <= today ? 0 : 1;
-      const dueB = !state.progress[b.id] || state.progress[b.id].nextReview <= today ? 0 : 1;
+      const pa = state.progress[progressKey(a)];
+      const pb = state.progress[progressKey(b)];
+      const dueA = !pa || pa.nextReview <= today ? 0 : 1;
+      const dueB = !pb || pb.nextReview <= today ? 0 : 1;
       return dueA - dueB;
     });
   }
@@ -320,8 +336,8 @@ function updateStats() {
   const allCards = getAllCards();
   let mastered = 0, review = 0;
 
-  allCards.forEach(c => {
-    const entry = state.progress[c.id];
+  allCards.forEach((c) => {
+    const entry = state.progress[progressKey(c)];
     if (entry) {
       if (entry.lastAction === 'mastered') mastered++;
       else if (entry.lastAction === 'review') review++;
@@ -335,18 +351,21 @@ function updateStats() {
   document.getElementById('stat-unseen').textContent   = unseen;
 }
 
-function markCard(action) {
+async function markCard(action) {
   if (!currentCard) return;
 
-  const entry = state.progress[currentCard.id] || { box: 1, nextReview: todayStr(), lastAction: null };
-
-  entry.box        = action === 'mastered' ? Math.min(5, entry.box + 1) : 1;
-  entry.lastAction = action;
-  entry.nextReview = addDays(todayStr(), LEITNER_INTERVALS[entry.box - 1]);
-
-  state.progress[currentCard.id] = entry;
-  saveProgress();
-  recordActivity();
+  try {
+    const { progress, streak } = await apiPost('/api/progress/mark', {
+      cardType: currentCard.type,
+      cardId: currentCard.id,
+      action,
+    });
+    state.progress[progressKey(currentCard)] = progress;
+    state.streak = streak;
+  } catch (e) {
+    console.error('Échec de la mise à jour de la progression :', e.message);
+    return;
+  }
 
   const updated = getFilteredCards();
   if (state.currentIndex >= updated.length) {
@@ -377,16 +396,16 @@ function setupFlashcards() {
   document.getElementById('btn-mastered').addEventListener('click', () => markCard('mastered'));
   document.getElementById('btn-review').addEventListener('click',   () => markCard('review'));
 
-  ['speak-front-btn', 'speak-back-btn'].forEach(id => {
-    document.getElementById(id).addEventListener('click', e => {
+  ['speak-front-btn', 'speak-back-btn'].forEach((id) => {
+    document.getElementById(id).addEventListener('click', (e) => {
       e.stopPropagation();
       if (currentCard) speak(currentCard);
     });
   });
 
-  document.querySelectorAll('.filter-btn').forEach(btn => {
+  document.querySelectorAll('.filter-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.filter-btn').forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       state.filter       = btn.dataset.filter;
       state.currentIndex = 0;
@@ -394,13 +413,13 @@ function setupFlashcards() {
     });
   });
 
-  document.getElementById('category-filter').addEventListener('change', e => {
+  document.getElementById('category-filter').addEventListener('change', (e) => {
     state.categoryFilter = e.target.value;
     state.currentIndex   = 0;
     renderFlashcard();
   });
 
-  document.addEventListener('keydown', e => {
+  document.addEventListener('keydown', (e) => {
     if (!document.getElementById('view-flashcards').classList.contains('active')) return;
     const cards = getFilteredCards();
     if (!cards.length) return;
@@ -433,21 +452,21 @@ const quiz = {
 };
 
 function setupQuiz() {
-  document.getElementById('quiz-category-select').addEventListener('change', e => {
+  document.getElementById('quiz-category-select').addEventListener('change', (e) => {
     quiz.settings.category = e.target.value;
   });
 
-  document.querySelectorAll('#quiz-count-group .option-btn').forEach(btn => {
+  document.querySelectorAll('#quiz-count-group .option-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('#quiz-count-group .option-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#quiz-count-group .option-btn').forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       quiz.settings.count = parseInt(btn.dataset.count, 10);
     });
   });
 
-  document.querySelectorAll('#quiz-mode-group .option-btn').forEach(btn => {
+  document.querySelectorAll('#quiz-mode-group .option-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('#quiz-mode-group .option-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#quiz-mode-group .option-btn').forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       quiz.settings.mode = btn.dataset.mode;
     });
@@ -465,7 +484,7 @@ function setupQuiz() {
   });
 
   document.getElementById('quiz-typing-submit').addEventListener('click', submitTypingAnswer);
-  document.getElementById('quiz-typing-input').addEventListener('keydown', e => {
+  document.getElementById('quiz-typing-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') submitTypingAnswer();
   });
 }
@@ -473,7 +492,7 @@ function setupQuiz() {
 function startQuiz() {
   let pool = getAllCards();
   if (quiz.settings.category !== 'all') {
-    pool = pool.filter(c => c.category === quiz.settings.category);
+    pool = pool.filter((c) => c.category === quiz.settings.category);
   }
 
   const count = Math.min(quiz.settings.count, pool.length);
@@ -514,34 +533,35 @@ function renderQuizQuestion() {
 
 function renderQcmQuestion(q) {
   const allCards    = getAllCards();
-  const distractors = shuffle(allCards.filter(c => String(c.id) !== String(q.id))).slice(0, 3);
+  const distractors = shuffle(allCards.filter((c) => String(c.id) !== String(q.id) || c.type !== q.type)).slice(0, 3);
   const choices      = shuffle([q, ...distractors]);
 
   const container = document.getElementById('quiz-choices');
   container.innerHTML = '';
 
-  choices.forEach(choice => {
+  choices.forEach((choice) => {
     const btn = document.createElement('button');
     btn.className   = 'choice-btn';
     btn.textContent = choice.translation;
-    btn.dataset.id  = String(choice.id);
+    btn.dataset.id   = String(choice.id);
+    btn.dataset.type = choice.type;
 
     btn.addEventListener('click', () => {
       if (quiz.answered) return;
       quiz.answered = true;
 
-      const isCorrect = String(choice.id) === String(q.id);
+      const isCorrect = String(choice.id) === String(q.id) && choice.type === q.type;
       if (isCorrect) {
         btn.classList.add('correct');
         quiz.score++;
       } else {
         btn.classList.add('wrong');
-        container.querySelectorAll('.choice-btn').forEach(b => {
-          if (b.dataset.id === String(q.id)) b.classList.add('correct');
+        container.querySelectorAll('.choice-btn').forEach((b) => {
+          if (b.dataset.id === String(q.id) && b.dataset.type === q.type) b.classList.add('correct');
         });
       }
 
-      container.querySelectorAll('.choice-btn').forEach(b => (b.disabled = true));
+      container.querySelectorAll('.choice-btn').forEach((b) => (b.disabled = true));
       setTimeout(goToNextQuestion, 1200);
     });
 
@@ -596,7 +616,7 @@ function goToNextQuestion() {
   }
 }
 
-function showQuizResult() {
+async function showQuizResult() {
   document.getElementById('quiz-question').classList.add('hidden');
   document.getElementById('quiz-result').classList.remove('hidden');
   document.getElementById('quiz-progress-fill').style.width = '100%';
@@ -630,15 +650,14 @@ function showQuizResult() {
   document.getElementById('result-title').textContent   = title;
   document.getElementById('result-message').textContent = message;
 
-  state.history.unshift({
-    date:     new Date().toISOString(),
-    score, total,
-    mode:     quiz.settings.mode,
-    category: quiz.settings.category,
-  });
-  state.history = state.history.slice(0, 20);
-  saveHistory();
-  recordActivity();
+  try {
+    const { streak } = await apiPost('/api/quiz-history', {
+      score, total, mode: quiz.settings.mode, category: quiz.settings.category,
+    });
+    state.streak = streak;
+  } catch (e) {
+    console.error("Échec de l'enregistrement du résultat de quiz :", e.message);
+  }
 }
 
 // ══════════════════════════════════════════════════════
@@ -649,8 +668,8 @@ function setupMesCartes() {
   document.getElementById('btn-add-card').addEventListener('click', saveCard);
   document.getElementById('btn-cancel-edit').addEventListener('click', cancelEdit);
 
-  ['input-hangeul', 'input-roman', 'input-translation'].forEach(id => {
-    document.getElementById(id).addEventListener('keydown', e => {
+  ['input-hangeul', 'input-roman', 'input-translation'].forEach((id) => {
+    document.getElementById(id).addEventListener('keydown', (e) => {
       if (e.key === 'Enter') saveCard();
     });
   });
@@ -658,7 +677,7 @@ function setupMesCartes() {
   renderMyCards();
 }
 
-function saveCard() {
+async function saveCard() {
   const hangeul      = document.getElementById('input-hangeul').value.trim();
   const romanisation = document.getElementById('input-roman').value.trim();
   const translation  = document.getElementById('input-translation').value.trim();
@@ -670,16 +689,23 @@ function saveCard() {
   }
   errorEl.classList.add('hidden');
 
-  if (editingId) {
-    const card = state.custom.find(c => c.id === editingId);
-    if (card) { card.hangeul = hangeul; card.romanisation = romanisation; card.translation = translation; }
-    cancelEdit();
-  } else {
-    state.custom.push({ id: `custom_${Date.now()}`, hangeul, romanisation, translation });
-    clearForm();
+  try {
+    if (editingId) {
+      await apiPut(`/api/cards/${editingId}`, { hangeul, romanisation, translation });
+      const card = state.custom.find((c) => c.id === editingId);
+      if (card) { card.hangeul = hangeul; card.romanisation = romanisation; card.translation = translation; }
+      cancelEdit();
+    } else {
+      const created = await apiPost('/api/cards', { hangeul, romanisation, translation });
+      state.custom.push(created);
+      clearForm();
+    }
+  } catch (e) {
+    errorEl.textContent = e.message;
+    errorEl.classList.remove('hidden');
+    return;
   }
 
-  saveCustom();
   refreshCategorySelects();
   renderMyCards();
 }
@@ -711,11 +737,15 @@ function cancelEdit() {
   renderMyCards();
 }
 
-function deleteCard(id) {
-  state.custom = state.custom.filter(c => c.id !== id);
-  delete state.progress[id];
-  saveCustom();
-  saveProgress();
+async function deleteCard(id) {
+  try {
+    await apiDelete(`/api/cards/${id}`);
+  } catch (e) {
+    console.error('Échec de la suppression :', e.message);
+    return;
+  }
+  state.custom = state.custom.filter((c) => c.id !== id);
+  delete state.progress[`custom_${id}`];
   if (editingId === id) cancelEdit();
   refreshCategorySelects();
   renderMyCards();
@@ -739,7 +769,7 @@ function renderMyCards() {
   const grid = document.createElement('div');
   grid.className = 'my-cards-grid';
 
-  state.custom.forEach(card => {
+  state.custom.forEach((card) => {
     const item = document.createElement('div');
     item.className = 'my-card-item' + (editingId === card.id ? ' editing' : '');
     item.innerHTML = `
@@ -763,25 +793,30 @@ function renderMyCards() {
 //  STATS
 // ══════════════════════════════════════════════════════
 
-function renderStats() {
+async function renderStats() {
   document.getElementById('streak-current').textContent = state.streak.current;
   document.getElementById('streak-longest').textContent = state.streak.longest;
 
   const allCards = getAllCards();
-  const mastered = allCards.filter(c => state.progress[c.id] && state.progress[c.id].lastAction === 'mastered').length;
+  const mastered = allCards.filter((c) => state.progress[progressKey(c)] && state.progress[progressKey(c)].lastAction === 'mastered').length;
   const total    = allCards.length;
   const pct      = total ? Math.round((mastered / total) * 100) : 0;
 
   document.getElementById('mastery-bar-fill').style.width = `${pct}%`;
   document.getElementById('mastery-text').textContent = `${mastered} / ${total} mots maîtrisés`;
 
-  renderHistoryChart();
+  try {
+    const { history } = await apiGet('/api/quiz-history');
+    renderHistoryChart(history);
+  } catch (e) {
+    console.error("Échec du chargement de l'historique :", e.message);
+  }
 }
 
-function renderHistoryChart() {
+function renderHistoryChart(history) {
   const container = document.getElementById('history-container');
 
-  if (state.history.length === 0) {
+  if (!history || history.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
         <div class="empty-emoji">📊</div>
@@ -790,14 +825,14 @@ function renderHistoryChart() {
     return;
   }
 
-  const recent = state.history.slice(0, 8).reverse();
+  const recent = [...history].reverse(); // du plus ancien au plus récent
 
   const chart = document.createElement('div');
   chart.className = 'history-chart';
 
-  recent.forEach(entry => {
+  recent.forEach((entry) => {
     const pct = Math.round((entry.score / entry.total) * 100);
-    const date = new Date(entry.date);
+    const date = new Date(entry.playedAt);
     const dateLabel = `${date.getDate()}/${date.getMonth() + 1}`;
 
     const wrap = document.createElement('div');

@@ -129,8 +129,6 @@ header {
 }
 
 .btn-theme-toggle {
-  position: absolute;
-  right: 0;
   background: var(--border);
   border: none;
   width: 34px;
@@ -142,6 +140,7 @@ header {
   align-items: center;
   justify-content: center;
   transition: transform .2s, background .2s;
+  flex-shrink: 0;
 }
 
 .btn-theme-toggle:hover { transform: scale(1.08); }
@@ -1044,4 +1043,215 @@ main {
 
   .card-actions { gap: .4rem; }
   .btn-review, .btn-mastered { padding: .5rem .85rem; font-size: .78rem; }
+}
+
+/* ══════════════════════════════════════════════════
+   COMPTE UTILISATEUR (en-tête de l'app)
+══════════════════════════════════════════════════ */
+
+.header-actions {
+  position: absolute;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  background: var(--border);
+  border: none;
+  padding: .3rem .7rem;
+  border-radius: 50px;
+  font-family: 'Poppins', sans-serif;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: transform .2s;
+}
+
+.user-chip:hover { transform: scale(1.04); }
+
+.account-menu {
+  position: fixed;
+  top: 64px;
+  right: 1rem;
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  padding: 1rem;
+  z-index: 200;
+  min-width: 200px;
+}
+
+.account-email {
+  font-size: .78rem;
+  color: var(--text-muted);
+  margin-bottom: .75rem;
+  word-break: break-all;
+}
+
+.account-menu-btn {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: .55rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.account-menu-btn:hover { background: var(--primary); color: #fff; }
+
+/* ══════════════════════════════════════════════════
+   PAGES D'AUTHENTIFICATION (connexion / inscription)
+══════════════════════════════════════════════════ */
+
+.auth-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  padding: 2rem 1.25rem;
+}
+
+.auth-wrap {
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+.auth-logo {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: .35rem;
+  margin-bottom: .2rem;
+}
+
+.auth-tagline {
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1.75rem;
+}
+
+.auth-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 2rem 1.75rem;
+  box-shadow: var(--shadow-lg);
+  text-align: left;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: .3rem;
+  background: var(--bg);
+  padding: .28rem;
+  border-radius: 50px;
+  margin-bottom: 1.5rem;
+}
+
+.auth-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: .55rem;
+  border-radius: 50px;
+  font-family: 'Poppins', sans-serif;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.auth-tab.active {
+  background: var(--card);
+  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(214,78,110,.15);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-form-title {
+  font-size: 1.2rem;
+  margin-bottom: .25rem;
+}
+
+.auth-form .form-group input {
+  width: 100%;
+}
+
+.auth-helper {
+  font-size: .82rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.auth-error {
+  color: var(--primary);
+  font-size: .82rem;
+  background: var(--primary-lt);
+  padding: .6rem .8rem;
+  border-radius: var(--radius-sm);
+}
+
+.auth-success {
+  color: var(--success);
+  font-size: .82rem;
+  background: var(--success-lt);
+  padding: .6rem .8rem;
+  border-radius: var(--radius-sm);
+}
+
+.auth-submit { width: 100%; }
+
+.auth-link {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: 'Poppins', sans-serif;
+  font-size: .82rem;
+  text-decoration: underline;
+  cursor: pointer;
+  text-align: center;
+  padding: .3rem;
+}
+
+.auth-link:hover { color: var(--primary); }
+
+.avatar-picker {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: .5rem;
+}
+
+.avatar-option {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 1.4rem;
+  padding: .5rem 0;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.avatar-option.selected {
+  border-color: var(--primary);
+  background: var(--primary-lt);
 }

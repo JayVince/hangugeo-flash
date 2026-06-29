@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connexion | 한국어 Flash — OppaLingo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body class="auth-body">
+
+  <div class="auth-wrap">
+    <div class="auth-logo">
+      <span class="logo-kr">한국어</span>
+      <span class="logo-en">Flash</span>
+      <span class="logo-blossom">🌸</span>
+    </div>
+    <p class="auth-tagline">by OppaLingo</p>
+
+    <div class="auth-card">
+
+      <!-- Onglets Connexion / Inscription -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Connexion</button>
+        <button class="auth-tab" data-tab="register">Inscription</button>
+      </div>
+
+      <!-- ── Formulaire de connexion ── -->
+      <form id="login-form" class="auth-form">
+        <div class="form-group">
+          <label for="login-identifier">Nom d'utilisateur ou e-mail</label>
+          <input type="text" id="login-identifier" autocomplete="username" required />
+        </div>
+        <div class="form-group">
+          <label for="login-password">Mot de passe</label>
+          <input type="password" id="login-password" autocomplete="current-password" required />
+        </div>
+        <p class="auth-error hidden" id="login-error"></p>
+        <button type="submit" class="btn-primary auth-submit">Se connecter</button>
+        <button type="button" class="auth-link" id="btn-forgot-password">Mot de passe oublié ?</button>
+      </form>
+
+      <!-- ── Formulaire d'inscription ── -->
+      <form id="register-form" class="auth-form hidden">
+        <div class="form-group">
+          <label for="register-username">Nom d'utilisateur</label>
+          <input type="text" id="register-username" autocomplete="username" minlength="3" maxlength="20" required />
+        </div>
+        <div class="form-group">
+          <label for="register-email">E-mail</label>
+          <input type="email" id="register-email" autocomplete="email" required />
+        </div>
+        <div class="form-group">
+          <label for="register-password">Mot de passe (8 caractères minimum)</label>
+          <input type="password" id="register-password" autocomplete="new-password" minlength="8" required />
+        </div>
+        <div class="form-group">
+          <label>Avatar</label>
+          <div class="avatar-picker" id="avatar-picker">
+            <!-- Rempli par auth.js -->
+          </div>
+        </div>
+        <p class="auth-error hidden" id="register-error"></p>
+        <button type="submit" class="btn-primary auth-submit">Créer mon compte</button>
+      </form>
+
+      <!-- ── Formulaire "mot de passe oublié" ── -->
+      <form id="forgot-form" class="auth-form hidden">
+        <p class="auth-helper">Indiquez votre e-mail, nous vous envoyons un lien de réinitialisation.</p>
+        <div class="form-group">
+          <label for="forgot-email">E-mail</label>
+          <input type="email" id="forgot-email" autocomplete="email" required />
+        </div>
+        <p class="auth-error hidden" id="forgot-error"></p>
+        <p class="auth-success hidden" id="forgot-success"></p>
+        <button type="submit" class="btn-primary auth-submit">Envoyer le lien</button>
+        <button type="button" class="auth-link" id="btn-back-to-login">Retour à la connexion</button>
+      </form>
+
+    </div>
+  </div>
+
+  <script src="/auth.js"></script>
+</body>
+</html>

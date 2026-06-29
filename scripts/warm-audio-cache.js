@@ -14,16 +14,32 @@ const fs   = require('fs');
 const path = require('path');
 const { hashText, fetchTtsBuffer } = require('../lib/tts');
 
-// Source unique du vocabulaire — voir data/vocab.json (généré par data/build-vocab.js)
-const vocab = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '..', 'data', 'vocab.json'), 'utf8')
-);
-const VOCAB_HANGEUL = vocab.map(v => v.hangeul);
+async function loadVocabHangeul() {
+  // La base de données est la source de vérité (le vocabulaire peut évoluer
+  // sans toucher au code). On retombe sur data/vocab.json si la base n'est
+  // pas joignable (ex. script lancé avant la configuration complète).
+  try {
+    require('dotenv').config();
+    const vocabModel = require('../models/vocab');
+    const vocab = await vocabModel.getAllVocab();
+    if (vocab.length > 0) return vocab.map((v) => v.hangeul);
+  } catch (err) {
+    console.warn('⚠ Base de données non joignable, repli sur data/vocab.json :', err.message);
+  }
+
+  const fallback = JSON.parse(
+    fs.readFileSync(path.join(__dirname, '..', 'data', 'vocab.json'), 'utf8')
+  );
+  return fallback.map((v) => v.hangeul);
+}
 
 const CACHE_DIR = path.join(__dirname, '..', 'public', 'audio', 'cache');
 
 async function warmCache() {
   fs.mkdirSync(CACHE_DIR, { recursive: true });
+
+  const VOCAB_HANGEUL = await loadVocabHangeul();
+  console.log(`${VOCAB_HANGEUL.length} mots à traiter.\n`);
 
   let generated = 0;
   let skipped   = 0;
@@ -52,6 +68,7 @@ async function warmCache() {
 
   console.log('\n── Résumé ──');
   console.log(`Générés : ${generated} | Déjà en cache : ${skipped} | Échecs : ${failed}`);
+  process.exit(0);
 }
 
 warmCache();
