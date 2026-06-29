@@ -223,6 +223,24 @@ console.log('\n📋 Persistance localStorage (migration incluse)');
   check('La progression est bien sauvegardée en localStorage', saved[firstKey].lastAction === 'mastered');
 }
 
+console.log('\n📋 Vocabulaire — 270 mots, zéro doublon');
+{
+  const win = loadApp();
+  const vocabScript = win.document.getElementById('vocab-data').textContent;
+  const vocab = JSON.parse(vocabScript);
+
+  check('Le vocabulaire contient exactement 270 mots', vocab.length === 270);
+
+  const hangeulSet = new Set(vocab.map(v => v.hangeul));
+  check('Aucun doublon de hangeul', hangeulSet.size === vocab.length);
+
+  const idSet = new Set(vocab.map(v => v.id));
+  check('Tous les ID sont uniques', idSet.size === vocab.length);
+
+  const incomplete = vocab.filter(v => !v.hangeul || !v.romanisation || !v.translation || !v.category);
+  check('Tous les mots ont les 4 champs requis', incomplete.length === 0);
+}
+
 // ════════════════════════════════════════════════════
 console.log(`\n${'═'.repeat(50)}`);
 console.log(`RÉSULTAT : ${pass} réussis, ${fail} échoués sur ${pass + fail} tests`);

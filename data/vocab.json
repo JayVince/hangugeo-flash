@@ -1,0 +1,1892 @@
+[
+  {
+    "id": 1,
+    "hangeul": "안녕하세요",
+    "romanisation": "annyeonghaseyo",
+    "translation": "Bonjour",
+    "category": "Salutations"
+  },
+  {
+    "id": 2,
+    "hangeul": "감사합니다",
+    "romanisation": "gamsahamnida",
+    "translation": "Merci",
+    "category": "Salutations"
+  },
+  {
+    "id": 3,
+    "hangeul": "죄송합니다",
+    "romanisation": "joesonghamnida",
+    "translation": "Pardon / Désolé",
+    "category": "Salutations"
+  },
+  {
+    "id": 4,
+    "hangeul": "네",
+    "romanisation": "ne",
+    "translation": "Oui",
+    "category": "Salutations"
+  },
+  {
+    "id": 5,
+    "hangeul": "아니요",
+    "romanisation": "aniyo",
+    "translation": "Non",
+    "category": "Salutations"
+  },
+  {
+    "id": 6,
+    "hangeul": "안녕히 가세요",
+    "romanisation": "annyeonghi gaseyo",
+    "translation": "Au revoir",
+    "category": "Salutations"
+  },
+  {
+    "id": 7,
+    "hangeul": "어서 오세요",
+    "romanisation": "eoseo oseyo",
+    "translation": "Bienvenue",
+    "category": "Salutations"
+  },
+  {
+    "id": 8,
+    "hangeul": "반갑습니다",
+    "romanisation": "bangapseumnida",
+    "translation": "Enchanté(e)",
+    "category": "Salutations"
+  },
+  {
+    "id": 9,
+    "hangeul": "잘 지내요",
+    "romanisation": "jal jinaeyo",
+    "translation": "Je vais bien",
+    "category": "Salutations"
+  },
+  {
+    "id": 10,
+    "hangeul": "이름이 뭐예요?",
+    "romanisation": "ireumi mwoyeyo?",
+    "translation": "Comment vous appelez-vous ?",
+    "category": "Salutations"
+  },
+  {
+    "id": 11,
+    "hangeul": "일",
+    "romanisation": "il",
+    "translation": "Un",
+    "category": "Chiffres"
+  },
+  {
+    "id": 12,
+    "hangeul": "이",
+    "romanisation": "i",
+    "translation": "Deux",
+    "category": "Chiffres"
+  },
+  {
+    "id": 13,
+    "hangeul": "삼",
+    "romanisation": "sam",
+    "translation": "Trois",
+    "category": "Chiffres"
+  },
+  {
+    "id": 14,
+    "hangeul": "사",
+    "romanisation": "sa",
+    "translation": "Quatre",
+    "category": "Chiffres"
+  },
+  {
+    "id": 15,
+    "hangeul": "오",
+    "romanisation": "o",
+    "translation": "Cinq",
+    "category": "Chiffres"
+  },
+  {
+    "id": 16,
+    "hangeul": "육",
+    "romanisation": "yuk",
+    "translation": "Six",
+    "category": "Chiffres"
+  },
+  {
+    "id": 17,
+    "hangeul": "칠",
+    "romanisation": "chil",
+    "translation": "Sept",
+    "category": "Chiffres"
+  },
+  {
+    "id": 18,
+    "hangeul": "팔",
+    "romanisation": "pal",
+    "translation": "Huit",
+    "category": "Chiffres"
+  },
+  {
+    "id": 19,
+    "hangeul": "구",
+    "romanisation": "gu",
+    "translation": "Neuf",
+    "category": "Chiffres"
+  },
+  {
+    "id": 20,
+    "hangeul": "십",
+    "romanisation": "sip",
+    "translation": "Dix",
+    "category": "Chiffres"
+  },
+  {
+    "id": 21,
+    "hangeul": "빨간색",
+    "romanisation": "ppalgansaek",
+    "translation": "Rouge",
+    "category": "Couleurs"
+  },
+  {
+    "id": 22,
+    "hangeul": "파란색",
+    "romanisation": "paransaek",
+    "translation": "Bleu",
+    "category": "Couleurs"
+  },
+  {
+    "id": 23,
+    "hangeul": "노란색",
+    "romanisation": "noransaek",
+    "translation": "Jaune",
+    "category": "Couleurs"
+  },
+  {
+    "id": 24,
+    "hangeul": "초록색",
+    "romanisation": "choroksaek",
+    "translation": "Vert",
+    "category": "Couleurs"
+  },
+  {
+    "id": 25,
+    "hangeul": "흰색",
+    "romanisation": "huinsaek",
+    "translation": "Blanc",
+    "category": "Couleurs"
+  },
+  {
+    "id": 26,
+    "hangeul": "검은색",
+    "romanisation": "geomeunsaek",
+    "translation": "Noir",
+    "category": "Couleurs"
+  },
+  {
+    "id": 27,
+    "hangeul": "분홍색",
+    "romanisation": "bunhongsaek",
+    "translation": "Rose",
+    "category": "Couleurs"
+  },
+  {
+    "id": 28,
+    "hangeul": "보라색",
+    "romanisation": "borasaek",
+    "translation": "Violet",
+    "category": "Couleurs"
+  },
+  {
+    "id": 29,
+    "hangeul": "어머니",
+    "romanisation": "eomeoni",
+    "translation": "Mère",
+    "category": "Famille"
+  },
+  {
+    "id": 30,
+    "hangeul": "아버지",
+    "romanisation": "abeoji",
+    "translation": "Père",
+    "category": "Famille"
+  },
+  {
+    "id": 31,
+    "hangeul": "형",
+    "romanisation": "hyeong",
+    "translation": "Grand frère (pour un homme)",
+    "category": "Famille"
+  },
+  {
+    "id": 32,
+    "hangeul": "언니",
+    "romanisation": "eonni",
+    "translation": "Grande sœur (pour une femme)",
+    "category": "Famille"
+  },
+  {
+    "id": 33,
+    "hangeul": "동생",
+    "romanisation": "dongsaeng",
+    "translation": "Petit(e) frère / sœur",
+    "category": "Famille"
+  },
+  {
+    "id": 34,
+    "hangeul": "할머니",
+    "romanisation": "halmeoni",
+    "translation": "Grand-mère",
+    "category": "Famille"
+  },
+  {
+    "id": 35,
+    "hangeul": "할아버지",
+    "romanisation": "harabeoji",
+    "translation": "Grand-père",
+    "category": "Famille"
+  },
+  {
+    "id": 36,
+    "hangeul": "친구",
+    "romanisation": "chingu",
+    "translation": "Ami(e)",
+    "category": "Famille"
+  },
+  {
+    "id": 37,
+    "hangeul": "밥",
+    "romanisation": "bap",
+    "translation": "Riz (cuit)",
+    "category": "Nourriture"
+  },
+  {
+    "id": 38,
+    "hangeul": "물",
+    "romanisation": "mul",
+    "translation": "Eau",
+    "category": "Nourriture"
+  },
+  {
+    "id": 39,
+    "hangeul": "커피",
+    "romanisation": "keopi",
+    "translation": "Café",
+    "category": "Nourriture"
+  },
+  {
+    "id": 40,
+    "hangeul": "김치",
+    "romanisation": "gimchi",
+    "translation": "Kimchi",
+    "category": "Nourriture"
+  },
+  {
+    "id": 41,
+    "hangeul": "빵",
+    "romanisation": "ppang",
+    "translation": "Pain",
+    "category": "Nourriture"
+  },
+  {
+    "id": 42,
+    "hangeul": "고기",
+    "romanisation": "gogi",
+    "translation": "Viande",
+    "category": "Nourriture"
+  },
+  {
+    "id": 43,
+    "hangeul": "채소",
+    "romanisation": "chaeso",
+    "translation": "Légumes",
+    "category": "Nourriture"
+  },
+  {
+    "id": 44,
+    "hangeul": "과일",
+    "romanisation": "gwail",
+    "translation": "Fruits",
+    "category": "Nourriture"
+  },
+  {
+    "id": 45,
+    "hangeul": "라면",
+    "romanisation": "ramyeon",
+    "translation": "Ramen",
+    "category": "Nourriture"
+  },
+  {
+    "id": 46,
+    "hangeul": "된장찌개",
+    "romanisation": "doenjang jjigae",
+    "translation": "Soupe miso coréenne",
+    "category": "Nourriture"
+  },
+  {
+    "id": 47,
+    "hangeul": "가다",
+    "romanisation": "gada",
+    "translation": "Aller",
+    "category": "Verbes"
+  },
+  {
+    "id": 48,
+    "hangeul": "오다",
+    "romanisation": "oda",
+    "translation": "Venir",
+    "category": "Verbes"
+  },
+  {
+    "id": 49,
+    "hangeul": "먹다",
+    "romanisation": "meokda",
+    "translation": "Manger",
+    "category": "Verbes"
+  },
+  {
+    "id": 50,
+    "hangeul": "마시다",
+    "romanisation": "masida",
+    "translation": "Boire",
+    "category": "Verbes"
+  },
+  {
+    "id": 51,
+    "hangeul": "자다",
+    "romanisation": "jada",
+    "translation": "Dormir",
+    "category": "Verbes"
+  },
+  {
+    "id": 52,
+    "hangeul": "일하다",
+    "romanisation": "ilhada",
+    "translation": "Travailler",
+    "category": "Verbes"
+  },
+  {
+    "id": 53,
+    "hangeul": "공부하다",
+    "romanisation": "gongbuhada",
+    "translation": "Étudier",
+    "category": "Verbes"
+  },
+  {
+    "id": 54,
+    "hangeul": "사랑하다",
+    "romanisation": "saranghada",
+    "translation": "Aimer",
+    "category": "Verbes"
+  },
+  {
+    "id": 55,
+    "hangeul": "오늘",
+    "romanisation": "oneul",
+    "translation": "Aujourd'hui",
+    "category": "Temps"
+  },
+  {
+    "id": 56,
+    "hangeul": "내일",
+    "romanisation": "naeil",
+    "translation": "Demain",
+    "category": "Temps"
+  },
+  {
+    "id": 57,
+    "hangeul": "어제",
+    "romanisation": "eoje",
+    "translation": "Hier",
+    "category": "Temps"
+  },
+  {
+    "id": 58,
+    "hangeul": "월요일",
+    "romanisation": "woryoil",
+    "translation": "Lundi",
+    "category": "Temps"
+  },
+  {
+    "id": 59,
+    "hangeul": "토요일",
+    "romanisation": "toyoil",
+    "translation": "Samedi",
+    "category": "Temps"
+  },
+  {
+    "id": 60,
+    "hangeul": "일요일",
+    "romanisation": "iryoil",
+    "translation": "Dimanche",
+    "category": "Temps"
+  },
+  {
+    "id": 61,
+    "hangeul": "개",
+    "romanisation": "gae",
+    "translation": "Chien",
+    "category": "Animaux"
+  },
+  {
+    "id": 62,
+    "hangeul": "고양이",
+    "romanisation": "goyangi",
+    "translation": "Chat",
+    "category": "Animaux"
+  },
+  {
+    "id": 63,
+    "hangeul": "새",
+    "romanisation": "sae",
+    "translation": "Oiseau",
+    "category": "Animaux"
+  },
+  {
+    "id": 64,
+    "hangeul": "물고기",
+    "romanisation": "mulgogi",
+    "translation": "Poisson",
+    "category": "Animaux"
+  },
+  {
+    "id": 65,
+    "hangeul": "말",
+    "romanisation": "mal",
+    "translation": "Cheval",
+    "category": "Animaux"
+  },
+  {
+    "id": 66,
+    "hangeul": "소",
+    "romanisation": "so",
+    "translation": "Vache / Bœuf",
+    "category": "Animaux"
+  },
+  {
+    "id": 67,
+    "hangeul": "돼지",
+    "romanisation": "dwaeji",
+    "translation": "Cochon",
+    "category": "Animaux"
+  },
+  {
+    "id": 68,
+    "hangeul": "닭",
+    "romanisation": "dak",
+    "translation": "Poulet",
+    "category": "Animaux"
+  },
+  {
+    "id": 69,
+    "hangeul": "호랑이",
+    "romanisation": "horangi",
+    "translation": "Tigre",
+    "category": "Animaux"
+  },
+  {
+    "id": 70,
+    "hangeul": "사자",
+    "romanisation": "saja",
+    "translation": "Lion",
+    "category": "Animaux"
+  },
+  {
+    "id": 71,
+    "hangeul": "곰",
+    "romanisation": "gom",
+    "translation": "Ours",
+    "category": "Animaux"
+  },
+  {
+    "id": 72,
+    "hangeul": "토끼",
+    "romanisation": "tokki",
+    "translation": "Lapin",
+    "category": "Animaux"
+  },
+  {
+    "id": 73,
+    "hangeul": "쥐",
+    "romanisation": "jwi",
+    "translation": "Souris",
+    "category": "Animaux"
+  },
+  {
+    "id": 74,
+    "hangeul": "원숭이",
+    "romanisation": "wonsungi",
+    "translation": "Singe",
+    "category": "Animaux"
+  },
+  {
+    "id": 75,
+    "hangeul": "코끼리",
+    "romanisation": "kokkiri",
+    "translation": "Éléphant",
+    "category": "Animaux"
+  },
+  {
+    "id": 76,
+    "hangeul": "여우",
+    "romanisation": "yeou",
+    "translation": "Renard",
+    "category": "Animaux"
+  },
+  {
+    "id": 77,
+    "hangeul": "늑대",
+    "romanisation": "neukdae",
+    "translation": "Loup",
+    "category": "Animaux"
+  },
+  {
+    "id": 78,
+    "hangeul": "사슴",
+    "romanisation": "saseum",
+    "translation": "Cerf",
+    "category": "Animaux"
+  },
+  {
+    "id": 79,
+    "hangeul": "양",
+    "romanisation": "yang",
+    "translation": "Mouton",
+    "category": "Animaux"
+  },
+  {
+    "id": 80,
+    "hangeul": "거북이",
+    "romanisation": "geobugi",
+    "translation": "Tortue",
+    "category": "Animaux"
+  },
+  {
+    "id": 81,
+    "hangeul": "머리",
+    "romanisation": "meori",
+    "translation": "Tête",
+    "category": "Corps humain"
+  },
+  {
+    "id": 82,
+    "hangeul": "얼굴",
+    "romanisation": "eolgul",
+    "translation": "Visage",
+    "category": "Corps humain"
+  },
+  {
+    "id": 83,
+    "hangeul": "눈",
+    "romanisation": "nun",
+    "translation": "Œil",
+    "category": "Corps humain"
+  },
+  {
+    "id": 84,
+    "hangeul": "코",
+    "romanisation": "ko",
+    "translation": "Nez",
+    "category": "Corps humain"
+  },
+  {
+    "id": 85,
+    "hangeul": "입",
+    "romanisation": "ip",
+    "translation": "Bouche",
+    "category": "Corps humain"
+  },
+  {
+    "id": 86,
+    "hangeul": "귀",
+    "romanisation": "gwi",
+    "translation": "Oreille",
+    "category": "Corps humain"
+  },
+  {
+    "id": 87,
+    "hangeul": "손",
+    "romanisation": "son",
+    "translation": "Main",
+    "category": "Corps humain"
+  },
+  {
+    "id": 88,
+    "hangeul": "발",
+    "romanisation": "bal",
+    "translation": "Pied",
+    "category": "Corps humain"
+  },
+  {
+    "id": 89,
+    "hangeul": "다리",
+    "romanisation": "dari",
+    "translation": "Jambe",
+    "category": "Corps humain"
+  },
+  {
+    "id": 90,
+    "hangeul": "어깨",
+    "romanisation": "eokkae",
+    "translation": "Épaule",
+    "category": "Corps humain"
+  },
+  {
+    "id": 91,
+    "hangeul": "배",
+    "romanisation": "bae",
+    "translation": "Ventre",
+    "category": "Corps humain"
+  },
+  {
+    "id": 92,
+    "hangeul": "등",
+    "romanisation": "deung",
+    "translation": "Dos",
+    "category": "Corps humain"
+  },
+  {
+    "id": 93,
+    "hangeul": "목",
+    "romanisation": "mok",
+    "translation": "Cou",
+    "category": "Corps humain"
+  },
+  {
+    "id": 94,
+    "hangeul": "머리카락",
+    "romanisation": "meorikarak",
+    "translation": "Cheveux",
+    "category": "Corps humain"
+  },
+  {
+    "id": 95,
+    "hangeul": "손가락",
+    "romanisation": "sonkkarak",
+    "translation": "Doigt",
+    "category": "Corps humain"
+  },
+  {
+    "id": 96,
+    "hangeul": "옷",
+    "romanisation": "ot",
+    "translation": "Vêtement",
+    "category": "Vêtements"
+  },
+  {
+    "id": 97,
+    "hangeul": "바지",
+    "romanisation": "baji",
+    "translation": "Pantalon",
+    "category": "Vêtements"
+  },
+  {
+    "id": 98,
+    "hangeul": "치마",
+    "romanisation": "chima",
+    "translation": "Jupe",
+    "category": "Vêtements"
+  },
+  {
+    "id": 99,
+    "hangeul": "셔츠",
+    "romanisation": "syeocheu",
+    "translation": "Chemise",
+    "category": "Vêtements"
+  },
+  {
+    "id": 100,
+    "hangeul": "신발",
+    "romanisation": "sinbal",
+    "translation": "Chaussures",
+    "category": "Vêtements"
+  },
+  {
+    "id": 101,
+    "hangeul": "모자",
+    "romanisation": "moja",
+    "translation": "Chapeau",
+    "category": "Vêtements"
+  },
+  {
+    "id": 102,
+    "hangeul": "양말",
+    "romanisation": "yangmal",
+    "translation": "Chaussettes",
+    "category": "Vêtements"
+  },
+  {
+    "id": 103,
+    "hangeul": "장갑",
+    "romanisation": "janggap",
+    "translation": "Gants",
+    "category": "Vêtements"
+  },
+  {
+    "id": 104,
+    "hangeul": "목도리",
+    "romanisation": "mokdori",
+    "translation": "Écharpe",
+    "category": "Vêtements"
+  },
+  {
+    "id": 105,
+    "hangeul": "코트",
+    "romanisation": "koteu",
+    "translation": "Manteau",
+    "category": "Vêtements"
+  },
+  {
+    "id": 106,
+    "hangeul": "가방",
+    "romanisation": "gabang",
+    "translation": "Sac",
+    "category": "Vêtements"
+  },
+  {
+    "id": 107,
+    "hangeul": "안경",
+    "romanisation": "angyeong",
+    "translation": "Lunettes",
+    "category": "Vêtements"
+  },
+  {
+    "id": 108,
+    "hangeul": "시계",
+    "romanisation": "sigye",
+    "translation": "Montre",
+    "category": "Vêtements"
+  },
+  {
+    "id": 109,
+    "hangeul": "반지",
+    "romanisation": "banji",
+    "translation": "Bague",
+    "category": "Vêtements"
+  },
+  {
+    "id": 110,
+    "hangeul": "티셔츠",
+    "romanisation": "tisyeocheu",
+    "translation": "T-shirt",
+    "category": "Vêtements"
+  },
+  {
+    "id": 111,
+    "hangeul": "집",
+    "romanisation": "jip",
+    "translation": "Maison",
+    "category": "Maison"
+  },
+  {
+    "id": 112,
+    "hangeul": "방",
+    "romanisation": "bang",
+    "translation": "Chambre / Pièce",
+    "category": "Maison"
+  },
+  {
+    "id": 113,
+    "hangeul": "거실",
+    "romanisation": "geosil",
+    "translation": "Salon",
+    "category": "Maison"
+  },
+  {
+    "id": 114,
+    "hangeul": "주방",
+    "romanisation": "jubang",
+    "translation": "Cuisine",
+    "category": "Maison"
+  },
+  {
+    "id": 115,
+    "hangeul": "화장실",
+    "romanisation": "hwajangsil",
+    "translation": "Toilettes / Salle de bain",
+    "category": "Maison"
+  },
+  {
+    "id": 116,
+    "hangeul": "침대",
+    "romanisation": "chimdae",
+    "translation": "Lit",
+    "category": "Maison"
+  },
+  {
+    "id": 117,
+    "hangeul": "의자",
+    "romanisation": "uija",
+    "translation": "Chaise",
+    "category": "Maison"
+  },
+  {
+    "id": 118,
+    "hangeul": "책상",
+    "romanisation": "chaeksang",
+    "translation": "Bureau (meuble)",
+    "category": "Maison"
+  },
+  {
+    "id": 119,
+    "hangeul": "창문",
+    "romanisation": "changmun",
+    "translation": "Fenêtre",
+    "category": "Maison"
+  },
+  {
+    "id": 120,
+    "hangeul": "문",
+    "romanisation": "mun",
+    "translation": "Porte",
+    "category": "Maison"
+  },
+  {
+    "id": 121,
+    "hangeul": "거울",
+    "romanisation": "geoul",
+    "translation": "Miroir",
+    "category": "Maison"
+  },
+  {
+    "id": 122,
+    "hangeul": "소파",
+    "romanisation": "sopa",
+    "translation": "Canapé",
+    "category": "Maison"
+  },
+  {
+    "id": 123,
+    "hangeul": "냉장고",
+    "romanisation": "naengjanggo",
+    "translation": "Réfrigérateur",
+    "category": "Maison"
+  },
+  {
+    "id": 124,
+    "hangeul": "세탁기",
+    "romanisation": "setakgi",
+    "translation": "Machine à laver",
+    "category": "Maison"
+  },
+  {
+    "id": 125,
+    "hangeul": "열쇠",
+    "romanisation": "yeolsoe",
+    "translation": "Clé",
+    "category": "Maison"
+  },
+  {
+    "id": 126,
+    "hangeul": "학교",
+    "romanisation": "hakgyo",
+    "translation": "École",
+    "category": "Ville"
+  },
+  {
+    "id": 127,
+    "hangeul": "병원",
+    "romanisation": "byeongwon",
+    "translation": "Hôpital",
+    "category": "Ville"
+  },
+  {
+    "id": 128,
+    "hangeul": "은행",
+    "romanisation": "eunhaeng",
+    "translation": "Banque",
+    "category": "Ville"
+  },
+  {
+    "id": 129,
+    "hangeul": "시장",
+    "romanisation": "sijang",
+    "translation": "Marché",
+    "category": "Ville"
+  },
+  {
+    "id": 130,
+    "hangeul": "공원",
+    "romanisation": "gongwon",
+    "translation": "Parc",
+    "category": "Ville"
+  },
+  {
+    "id": 131,
+    "hangeul": "역",
+    "romanisation": "yeok",
+    "translation": "Gare / Station",
+    "category": "Ville"
+  },
+  {
+    "id": 132,
+    "hangeul": "공항",
+    "romanisation": "gonghang",
+    "translation": "Aéroport",
+    "category": "Ville"
+  },
+  {
+    "id": 133,
+    "hangeul": "호텔",
+    "romanisation": "hotel",
+    "translation": "Hôtel",
+    "category": "Ville"
+  },
+  {
+    "id": 134,
+    "hangeul": "식당",
+    "romanisation": "sikdang",
+    "translation": "Restaurant",
+    "category": "Ville"
+  },
+  {
+    "id": 135,
+    "hangeul": "도서관",
+    "romanisation": "doseogwan",
+    "translation": "Bibliothèque",
+    "category": "Ville"
+  },
+  {
+    "id": 136,
+    "hangeul": "교회",
+    "romanisation": "gyohoe",
+    "translation": "Église",
+    "category": "Ville"
+  },
+  {
+    "id": 137,
+    "hangeul": "영화관",
+    "romanisation": "yeonghwagwan",
+    "translation": "Cinéma",
+    "category": "Ville"
+  },
+  {
+    "id": 138,
+    "hangeul": "약국",
+    "romanisation": "yakguk",
+    "translation": "Pharmacie",
+    "category": "Ville"
+  },
+  {
+    "id": 139,
+    "hangeul": "경찰서",
+    "romanisation": "gyeongchalseo",
+    "translation": "Commissariat",
+    "category": "Ville"
+  },
+  {
+    "id": 140,
+    "hangeul": "서울",
+    "romanisation": "seoul",
+    "translation": "Séoul",
+    "category": "Ville"
+  },
+  {
+    "id": 141,
+    "hangeul": "버스",
+    "romanisation": "beoseu",
+    "translation": "Bus",
+    "category": "Transports"
+  },
+  {
+    "id": 142,
+    "hangeul": "지하철",
+    "romanisation": "jihacheol",
+    "translation": "Métro",
+    "category": "Transports"
+  },
+  {
+    "id": 143,
+    "hangeul": "기차",
+    "romanisation": "gicha",
+    "translation": "Train",
+    "category": "Transports"
+  },
+  {
+    "id": 144,
+    "hangeul": "자동차",
+    "romanisation": "jadongcha",
+    "translation": "Voiture",
+    "category": "Transports"
+  },
+  {
+    "id": 145,
+    "hangeul": "자전거",
+    "romanisation": "jajeongeo",
+    "translation": "Vélo",
+    "category": "Transports"
+  },
+  {
+    "id": 146,
+    "hangeul": "택시",
+    "romanisation": "taeksi",
+    "translation": "Taxi",
+    "category": "Transports"
+  },
+  {
+    "id": 147,
+    "hangeul": "비행기",
+    "romanisation": "bihaenggi",
+    "translation": "Avion",
+    "category": "Transports"
+  },
+  {
+    "id": 148,
+    "hangeul": "오토바이",
+    "romanisation": "otobai",
+    "translation": "Moto",
+    "category": "Transports"
+  },
+  {
+    "id": 149,
+    "hangeul": "길",
+    "romanisation": "gil",
+    "translation": "Route / Chemin",
+    "category": "Transports"
+  },
+  {
+    "id": 150,
+    "hangeul": "정류장",
+    "romanisation": "jeongnyujang",
+    "translation": "Arrêt de bus",
+    "category": "Transports"
+  },
+  {
+    "id": 151,
+    "hangeul": "날씨",
+    "romanisation": "nalssi",
+    "translation": "Météo",
+    "category": "Météo"
+  },
+  {
+    "id": 152,
+    "hangeul": "비",
+    "romanisation": "bi",
+    "translation": "Pluie",
+    "category": "Météo"
+  },
+  {
+    "id": 153,
+    "hangeul": "바람",
+    "romanisation": "baram",
+    "translation": "Vent",
+    "category": "Météo"
+  },
+  {
+    "id": 154,
+    "hangeul": "더위",
+    "romanisation": "deowi",
+    "translation": "Chaleur",
+    "category": "Météo"
+  },
+  {
+    "id": 155,
+    "hangeul": "추위",
+    "romanisation": "chuwi",
+    "translation": "Froid",
+    "category": "Météo"
+  },
+  {
+    "id": 156,
+    "hangeul": "봄",
+    "romanisation": "bom",
+    "translation": "Printemps",
+    "category": "Météo"
+  },
+  {
+    "id": 157,
+    "hangeul": "여름",
+    "romanisation": "yeoreum",
+    "translation": "Été",
+    "category": "Météo"
+  },
+  {
+    "id": 158,
+    "hangeul": "가을",
+    "romanisation": "gaeul",
+    "translation": "Automne",
+    "category": "Météo"
+  },
+  {
+    "id": 159,
+    "hangeul": "겨울",
+    "romanisation": "gyeoul",
+    "translation": "Hiver",
+    "category": "Météo"
+  },
+  {
+    "id": 160,
+    "hangeul": "구름",
+    "romanisation": "gureum",
+    "translation": "Nuage",
+    "category": "Météo"
+  },
+  {
+    "id": 161,
+    "hangeul": "선생님",
+    "romanisation": "seonsaengnim",
+    "translation": "Professeur",
+    "category": "École"
+  },
+  {
+    "id": 162,
+    "hangeul": "학생",
+    "romanisation": "haksaeng",
+    "translation": "Étudiant(e)",
+    "category": "École"
+  },
+  {
+    "id": 163,
+    "hangeul": "회사",
+    "romanisation": "hoesa",
+    "translation": "Entreprise",
+    "category": "École"
+  },
+  {
+    "id": 164,
+    "hangeul": "회사원",
+    "romanisation": "hoesawon",
+    "translation": "Employé de bureau",
+    "category": "École"
+  },
+  {
+    "id": 165,
+    "hangeul": "사장",
+    "romanisation": "sajang",
+    "translation": "Patron / PDG",
+    "category": "École"
+  },
+  {
+    "id": 166,
+    "hangeul": "의사",
+    "romanisation": "uisa",
+    "translation": "Médecin",
+    "category": "École"
+  },
+  {
+    "id": 167,
+    "hangeul": "간호사",
+    "romanisation": "ganhosa",
+    "translation": "Infirmier/ère",
+    "category": "École"
+  },
+  {
+    "id": 168,
+    "hangeul": "경찰",
+    "romanisation": "gyeongchal",
+    "translation": "Policier",
+    "category": "École"
+  },
+  {
+    "id": 169,
+    "hangeul": "요리사",
+    "romanisation": "yorisa",
+    "translation": "Cuisinier",
+    "category": "École"
+  },
+  {
+    "id": 170,
+    "hangeul": "변호사",
+    "romanisation": "byeonhosa",
+    "translation": "Avocat",
+    "category": "École"
+  },
+  {
+    "id": 171,
+    "hangeul": "교실",
+    "romanisation": "gyosil",
+    "translation": "Salle de classe",
+    "category": "École"
+  },
+  {
+    "id": 172,
+    "hangeul": "시험",
+    "romanisation": "siheom",
+    "translation": "Examen",
+    "category": "École"
+  },
+  {
+    "id": 173,
+    "hangeul": "숙제",
+    "romanisation": "sukje",
+    "translation": "Devoirs",
+    "category": "École"
+  },
+  {
+    "id": 174,
+    "hangeul": "연필",
+    "romanisation": "yeonpil",
+    "translation": "Crayon",
+    "category": "École"
+  },
+  {
+    "id": 175,
+    "hangeul": "책",
+    "romanisation": "chaek",
+    "translation": "Livre",
+    "category": "École"
+  },
+  {
+    "id": 176,
+    "hangeul": "기쁘다",
+    "romanisation": "gippeuda",
+    "translation": "Être content(e) / joyeux",
+    "category": "Émotions"
+  },
+  {
+    "id": 177,
+    "hangeul": "슬프다",
+    "romanisation": "seulpeuda",
+    "translation": "Être triste",
+    "category": "Émotions"
+  },
+  {
+    "id": 178,
+    "hangeul": "화나다",
+    "romanisation": "hwanada",
+    "translation": "Être en colère",
+    "category": "Émotions"
+  },
+  {
+    "id": 179,
+    "hangeul": "무섭다",
+    "romanisation": "museopda",
+    "translation": "Avoir peur / Être effrayant",
+    "category": "Émotions"
+  },
+  {
+    "id": 180,
+    "hangeul": "행복하다",
+    "romanisation": "haengbokhada",
+    "translation": "Être heureux(se)",
+    "category": "Émotions"
+  },
+  {
+    "id": 181,
+    "hangeul": "피곤하다",
+    "romanisation": "pigonhada",
+    "translation": "Être fatigué(e)",
+    "category": "Émotions"
+  },
+  {
+    "id": 182,
+    "hangeul": "배고프다",
+    "romanisation": "baegopeuda",
+    "translation": "Avoir faim",
+    "category": "Émotions"
+  },
+  {
+    "id": 183,
+    "hangeul": "배부르다",
+    "romanisation": "baebureuda",
+    "translation": "Être rassasié(e)",
+    "category": "Émotions"
+  },
+  {
+    "id": 184,
+    "hangeul": "재미있다",
+    "romanisation": "jaemiitda",
+    "translation": "Être amusant(e) / intéressant",
+    "category": "Émotions"
+  },
+  {
+    "id": 185,
+    "hangeul": "지루하다",
+    "romanisation": "jiruhada",
+    "translation": "Être ennuyeux(se)",
+    "category": "Émotions"
+  },
+  {
+    "id": 186,
+    "hangeul": "부끄럽다",
+    "romanisation": "bukkeureopda",
+    "translation": "Être timide / avoir honte",
+    "category": "Émotions"
+  },
+  {
+    "id": 187,
+    "hangeul": "걱정되다",
+    "romanisation": "geokjeongdoeda",
+    "translation": "Être inquiet(ète)",
+    "category": "Émotions"
+  },
+  {
+    "id": 188,
+    "hangeul": "놀라다",
+    "romanisation": "nollada",
+    "translation": "Être surpris(e)",
+    "category": "Émotions"
+  },
+  {
+    "id": 189,
+    "hangeul": "긴장되다",
+    "romanisation": "ginjangdoeda",
+    "translation": "Être nerveux(se)",
+    "category": "Émotions"
+  },
+  {
+    "id": 190,
+    "hangeul": "편안하다",
+    "romanisation": "pyeonanhada",
+    "translation": "Être confortable / à l’aise",
+    "category": "Émotions"
+  },
+  {
+    "id": 191,
+    "hangeul": "영화",
+    "romanisation": "yeonghwa",
+    "translation": "Film",
+    "category": "Loisirs"
+  },
+  {
+    "id": 192,
+    "hangeul": "음악",
+    "romanisation": "eumak",
+    "translation": "Musique",
+    "category": "Loisirs"
+  },
+  {
+    "id": 193,
+    "hangeul": "노래",
+    "romanisation": "norae",
+    "translation": "Chanson",
+    "category": "Loisirs"
+  },
+  {
+    "id": 194,
+    "hangeul": "춤",
+    "romanisation": "chum",
+    "translation": "Danse",
+    "category": "Loisirs"
+  },
+  {
+    "id": 195,
+    "hangeul": "그림",
+    "romanisation": "geurim",
+    "translation": "Dessin / Peinture",
+    "category": "Loisirs"
+  },
+  {
+    "id": 196,
+    "hangeul": "사진",
+    "romanisation": "sajin",
+    "translation": "Photo",
+    "category": "Loisirs"
+  },
+  {
+    "id": 197,
+    "hangeul": "여행",
+    "romanisation": "yeohaeng",
+    "translation": "Voyage",
+    "category": "Loisirs"
+  },
+  {
+    "id": 198,
+    "hangeul": "운동",
+    "romanisation": "undong",
+    "translation": "Sport / Exercice",
+    "category": "Loisirs"
+  },
+  {
+    "id": 199,
+    "hangeul": "축구",
+    "romanisation": "chukgu",
+    "translation": "Football",
+    "category": "Loisirs"
+  },
+  {
+    "id": 200,
+    "hangeul": "야구",
+    "romanisation": "yagu",
+    "translation": "Baseball",
+    "category": "Loisirs"
+  },
+  {
+    "id": 201,
+    "hangeul": "농구",
+    "romanisation": "nonggu",
+    "translation": "Basketball",
+    "category": "Loisirs"
+  },
+  {
+    "id": 202,
+    "hangeul": "수영",
+    "romanisation": "suyeong",
+    "translation": "Natation",
+    "category": "Loisirs"
+  },
+  {
+    "id": 203,
+    "hangeul": "등산",
+    "romanisation": "deungsan",
+    "translation": "Randonnée (montagne)",
+    "category": "Loisirs"
+  },
+  {
+    "id": 204,
+    "hangeul": "게임",
+    "romanisation": "geim",
+    "translation": "Jeu vidéo",
+    "category": "Loisirs"
+  },
+  {
+    "id": 205,
+    "hangeul": "독서",
+    "romanisation": "dokseo",
+    "translation": "Lecture",
+    "category": "Loisirs"
+  },
+  {
+    "id": 206,
+    "hangeul": "컴퓨터",
+    "romanisation": "keompyuteo",
+    "translation": "Ordinateur",
+    "category": "Technologie"
+  },
+  {
+    "id": 207,
+    "hangeul": "휴대폰",
+    "romanisation": "hyudaepon",
+    "translation": "Téléphone portable",
+    "category": "Technologie"
+  },
+  {
+    "id": 208,
+    "hangeul": "인터넷",
+    "romanisation": "inteonet",
+    "translation": "Internet",
+    "category": "Technologie"
+  },
+  {
+    "id": 209,
+    "hangeul": "이메일",
+    "romanisation": "imeil",
+    "translation": "E-mail",
+    "category": "Technologie"
+  },
+  {
+    "id": 210,
+    "hangeul": "사진기",
+    "romanisation": "sajingi",
+    "translation": "Appareil photo",
+    "category": "Technologie"
+  },
+  {
+    "id": 211,
+    "hangeul": "텔레비전",
+    "romanisation": "tellebijeon",
+    "translation": "Télévision",
+    "category": "Technologie"
+  },
+  {
+    "id": 212,
+    "hangeul": "충전기",
+    "romanisation": "chungjeongi",
+    "translation": "Chargeur",
+    "category": "Technologie"
+  },
+  {
+    "id": 213,
+    "hangeul": "비밀번호",
+    "romanisation": "bimilbeonho",
+    "translation": "Mot de passe",
+    "category": "Technologie"
+  },
+  {
+    "id": 214,
+    "hangeul": "와이파이",
+    "romanisation": "waipai",
+    "translation": "Wifi",
+    "category": "Technologie"
+  },
+  {
+    "id": 215,
+    "hangeul": "앱",
+    "romanisation": "aep",
+    "translation": "Application",
+    "category": "Technologie"
+  },
+  {
+    "id": 216,
+    "hangeul": "돈",
+    "romanisation": "don",
+    "translation": "Argent",
+    "category": "Achats"
+  },
+  {
+    "id": 217,
+    "hangeul": "가격",
+    "romanisation": "gagyeok",
+    "translation": "Prix",
+    "category": "Achats"
+  },
+  {
+    "id": 218,
+    "hangeul": "싸다",
+    "romanisation": "ssada",
+    "translation": "Être bon marché",
+    "category": "Achats"
+  },
+  {
+    "id": 219,
+    "hangeul": "비싸다",
+    "romanisation": "bissada",
+    "translation": "Être cher(e)",
+    "category": "Achats"
+  },
+  {
+    "id": 220,
+    "hangeul": "사다",
+    "romanisation": "sada",
+    "translation": "Acheter",
+    "category": "Achats"
+  },
+  {
+    "id": 221,
+    "hangeul": "팔다",
+    "romanisation": "palda",
+    "translation": "Vendre",
+    "category": "Achats"
+  },
+  {
+    "id": 222,
+    "hangeul": "계산하다",
+    "romanisation": "gyesanhada",
+    "translation": "Payer / Calculer",
+    "category": "Achats"
+  },
+  {
+    "id": 223,
+    "hangeul": "영수증",
+    "romanisation": "yeongsujeung",
+    "translation": "Reçu / Ticket de caisse",
+    "category": "Achats"
+  },
+  {
+    "id": 224,
+    "hangeul": "할인",
+    "romanisation": "harin",
+    "translation": "Réduction / Promotion",
+    "category": "Achats"
+  },
+  {
+    "id": 225,
+    "hangeul": "신용카드",
+    "romanisation": "sinyongkadeu",
+    "translation": "Carte de crédit",
+    "category": "Achats"
+  },
+  {
+    "id": 226,
+    "hangeul": "크다",
+    "romanisation": "keuda",
+    "translation": "Être grand(e)",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 227,
+    "hangeul": "작다",
+    "romanisation": "jakda",
+    "translation": "Être petit(e)",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 228,
+    "hangeul": "길다",
+    "romanisation": "gilda",
+    "translation": "Être long(ue)",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 229,
+    "hangeul": "짧다",
+    "romanisation": "jjalda",
+    "translation": "Être court(e)",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 230,
+    "hangeul": "높다",
+    "romanisation": "nopda",
+    "translation": "Être haut(e)",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 231,
+    "hangeul": "낮다",
+    "romanisation": "natda",
+    "translation": "Être bas(se)",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 232,
+    "hangeul": "빠르다",
+    "romanisation": "ppareuda",
+    "translation": "Être rapide",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 233,
+    "hangeul": "느리다",
+    "romanisation": "neurida",
+    "translation": "Être lent(e)",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 234,
+    "hangeul": "쉽다",
+    "romanisation": "swipda",
+    "translation": "Être facile",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 235,
+    "hangeul": "어렵다",
+    "romanisation": "eoryeopda",
+    "translation": "Être difficile",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 236,
+    "hangeul": "좋다",
+    "romanisation": "jota",
+    "translation": "Être bon / bien",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 237,
+    "hangeul": "나쁘다",
+    "romanisation": "nappeuda",
+    "translation": "Être mauvais(e)",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 238,
+    "hangeul": "새롭다",
+    "romanisation": "saeropda",
+    "translation": "Être nouveau / nouvelle",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 239,
+    "hangeul": "오래되다",
+    "romanisation": "oraedoeda",
+    "translation": "Être vieux / ancien",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 240,
+    "hangeul": "깨끗하다",
+    "romanisation": "kkaekkeutada",
+    "translation": "Être propre",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 241,
+    "hangeul": "더럽다",
+    "romanisation": "deoreopda",
+    "translation": "Être sale",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 242,
+    "hangeul": "조용하다",
+    "romanisation": "joyonghada",
+    "translation": "Être calme / silencieux",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 243,
+    "hangeul": "시끄럽다",
+    "romanisation": "sikkeureopda",
+    "translation": "Être bruyant(e)",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 244,
+    "hangeul": "똑똑하다",
+    "romanisation": "ttokttokhada",
+    "translation": "Être intelligent(e)",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 245,
+    "hangeul": "친절하다",
+    "romanisation": "chinjeolhada",
+    "translation": "Être gentil(le) / aimable",
+    "category": "Adjectifs"
+  },
+  {
+    "id": 246,
+    "hangeul": "보다",
+    "romanisation": "boda",
+    "translation": "Voir / Regarder",
+    "category": "Verbes"
+  },
+  {
+    "id": 247,
+    "hangeul": "듣다",
+    "romanisation": "deutda",
+    "translation": "Écouter / Entendre",
+    "category": "Verbes"
+  },
+  {
+    "id": 248,
+    "hangeul": "말하다",
+    "romanisation": "malhada",
+    "translation": "Parler",
+    "category": "Verbes"
+  },
+  {
+    "id": 249,
+    "hangeul": "읽다",
+    "romanisation": "ikda",
+    "translation": "Lire",
+    "category": "Verbes"
+  },
+  {
+    "id": 250,
+    "hangeul": "쓰다",
+    "romanisation": "sseuda",
+    "translation": "Écrire",
+    "category": "Verbes"
+  },
+  {
+    "id": 251,
+    "hangeul": "주다",
+    "romanisation": "juda",
+    "translation": "Donner",
+    "category": "Verbes"
+  },
+  {
+    "id": 252,
+    "hangeul": "받다",
+    "romanisation": "batda",
+    "translation": "Recevoir",
+    "category": "Verbes"
+  },
+  {
+    "id": 253,
+    "hangeul": "만들다",
+    "romanisation": "mandeulda",
+    "translation": "Faire / Fabriquer",
+    "category": "Verbes"
+  },
+  {
+    "id": 254,
+    "hangeul": "알다",
+    "romanisation": "alda",
+    "translation": "Savoir / Connaître",
+    "category": "Verbes"
+  },
+  {
+    "id": 255,
+    "hangeul": "모르다",
+    "romanisation": "moreuda",
+    "translation": "Ne pas savoir",
+    "category": "Verbes"
+  },
+  {
+    "id": 256,
+    "hangeul": "시작하다",
+    "romanisation": "sijakhada",
+    "translation": "Commencer",
+    "category": "Verbes"
+  },
+  {
+    "id": 257,
+    "hangeul": "끝나다",
+    "romanisation": "kkeutnada",
+    "translation": "Finir / Se terminer",
+    "category": "Verbes"
+  },
+  {
+    "id": 258,
+    "hangeul": "도와주다",
+    "romanisation": "dowajuda",
+    "translation": "Aider",
+    "category": "Verbes"
+  },
+  {
+    "id": 259,
+    "hangeul": "기다리다",
+    "romanisation": "gidarida",
+    "translation": "Attendre",
+    "category": "Verbes"
+  },
+  {
+    "id": 260,
+    "hangeul": "타다",
+    "romanisation": "tada",
+    "translation": "Monter (dans un véhicule)",
+    "category": "Verbes"
+  },
+  {
+    "id": 261,
+    "hangeul": "걷다",
+    "romanisation": "geotda",
+    "translation": "Marcher",
+    "category": "Verbes"
+  },
+  {
+    "id": 262,
+    "hangeul": "뛰다",
+    "romanisation": "ttwida",
+    "translation": "Courir",
+    "category": "Verbes"
+  },
+  {
+    "id": 263,
+    "hangeul": "웃다",
+    "romanisation": "utda",
+    "translation": "Rire",
+    "category": "Verbes"
+  },
+  {
+    "id": 264,
+    "hangeul": "울다",
+    "romanisation": "ulda",
+    "translation": "Pleurer",
+    "category": "Verbes"
+  },
+  {
+    "id": 265,
+    "hangeul": "쉬다",
+    "romanisation": "swida",
+    "translation": "Se reposer",
+    "category": "Verbes"
+  },
+  {
+    "id": 266,
+    "hangeul": "괜찮아요",
+    "romanisation": "gwaenchanayo",
+    "translation": "Ça va / Pas de problème",
+    "category": "Expressions"
+  },
+  {
+    "id": 267,
+    "hangeul": "모르겠어요",
+    "romanisation": "moreugesseoyo",
+    "translation": "Je ne sais pas",
+    "category": "Expressions"
+  },
+  {
+    "id": 268,
+    "hangeul": "알겠어요",
+    "romanisation": "algesseoyo",
+    "translation": "J'ai compris / D'accord",
+    "category": "Expressions"
+  },
+  {
+    "id": 269,
+    "hangeul": "화이팅",
+    "romanisation": "hwaiting",
+    "translation": "Bon courage / Allez !",
+    "category": "Expressions"
+  },
+  {
+    "id": 270,
+    "hangeul": "조심하세요",
+    "romanisation": "josimhaseyo",
+    "translation": "Faites attention",
+    "category": "Expressions"
+  }
+]

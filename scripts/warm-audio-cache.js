@@ -1,5 +1,5 @@
 /**
- * Pré-génère l'audio des 60 mots prédéfinis pour que les premiers
+ * Pré-génère l'audio des mots prédéfinis pour que les premiers
  * visiteurs aient un son instantané dès le lancement, sans attendre
  * la génération à la volée.
  *
@@ -14,17 +14,11 @@ const fs   = require('fs');
 const path = require('path');
 const { hashText, fetchTtsBuffer } = require('../lib/tts');
 
-// Liste des 60 mots — garder synchronisée avec public/index.html
-const VOCAB_HANGEUL = [
-  '안녕하세요', '감사합니다', '죄송합니다', '네', '아니요',
-  '안녕히 가세요', '어서 오세요', '반갑습니다', '잘 지내요', '이름이 뭐예요?',
-  '일', '이', '삼', '사', '오', '육', '칠', '팔', '구', '십',
-  '빨간색', '파란색', '노란색', '초록색', '흰색', '검은색', '분홍색', '보라색',
-  '어머니', '아버지', '형', '언니', '동생', '할머니', '할아버지', '친구',
-  '밥', '물', '커피', '김치', '빵', '고기', '채소', '과일', '라면', '된장찌개',
-  '가다', '오다', '먹다', '마시다', '자다', '일하다', '공부하다', '사랑하다',
-  '오늘', '내일', '어제', '월요일', '토요일', '일요일',
-];
+// Source unique du vocabulaire — voir data/vocab.json (généré par data/build-vocab.js)
+const vocab = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '..', 'data', 'vocab.json'), 'utf8')
+);
+const VOCAB_HANGEUL = vocab.map(v => v.hangeul);
 
 const CACHE_DIR = path.join(__dirname, '..', 'public', 'audio', 'cache');
 
