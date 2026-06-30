@@ -48,9 +48,10 @@ d'environnement**, ajoutez (voir aussi `.env.example`) :
 
 | Variable | Valeur |
 |---|---|
-| `DB_SOCKET` | chemin du socket MySQL (voir encadré ci-dessous) — **méthode recommandée** |
+| `DB_HOST` | `127.0.0.1` |
+| `DB_PORT` | `3306` |
 | `DB_USER` | l'utilisateur MySQL créé à l'étape 1 |
-| `DB_PASSWORD` | le mot de passe MySQL créé à l'étape 1 |
+| `DB_PASSWORD` | le mot de passe MySQL créé à l'étape 1 (évitez les caractères spéciaux ambigus type `@ # & $`) |
 | `DB_NAME` | le nom de la base créée à l'étape 1 |
 | `JWT_SECRET` | une valeur aléatoire longue (voir commande ci-dessous) |
 | `SMTP_HOST` | `smtp.hostinger.com` |
@@ -61,29 +62,28 @@ d'environnement**, ajoutez (voir aussi `.env.example`) :
 | `APP_URL` | `https://oppalingo.com` |
 | `NODE_ENV` | `production` |
 
-> ⚠️ **Piège fréquent sur les hébergements mutualisés** : sur Hostinger,
-> l'utilisateur MySQL créé dans hPanel n'a souvent l'autorisation de
-> connexion **que via le socket Unix** (le même mode que phpMyAdmin), pas
-> via une connexion réseau classique. Résultat : que vous utilisiez
-> `DB_HOST=localhost` (résolu en IPv6 `::1` côté Node) ou
-> `DB_HOST=127.0.0.1` (connexion TCP), la connexion échoue avec
-> `Access denied for user '...'@'...'` **même si le mot de passe est
-> correct** — car aucune des deux ne correspond à une connexion via socket.
+**Ne définissez pas `DB_SOCKET`** sauf si vous savez que votre utilisateur
+MySQL a explicitement un grant pour `localhost` (socket Unix) — sur la
+plupart des comptes Hostinger testés, le grant par défaut couvre
+`127.0.0.1` (connexion TCP) mais pas `localhost`, ce qui ferait échouer la
+connexion avec `Access denied` si `DB_SOCKET` est utilisé.
+
+> ⚠️ **Si vous obtenez `Access denied for user '...'@'...'` malgré un mot
+> de passe correct**, le problème vient presque toujours de l'hôte
+> d'origine que MySQL voit pour la connexion :
+> - `@'::1'` → `localhost` a été résolu en IPv6 côté Node → utilisez `127.0.0.1`
+> - `@'localhost'` malgré `DB_HOST=127.0.0.1` → `DB_SOCKET` est défini et
+>   force une connexion via socket Unix → retirez `DB_SOCKET`
+> - `@'127.0.0.1'` avec `DB_HOST=127.0.0.1` → c'est probablement le mot de
+>   passe qui est incorrect (régénérez-le dans hPanel → Bases de données →
+>   Utilisateurs MySQL, et mettez à jour `DB_PASSWORD` à l'identique)
 >
-> **Solution** : définissez `DB_SOCKET` au lieu de `DB_HOST`/`DB_PORT`.
-> Pour obtenir le chemin exact du socket, exécutez dans l'onglet **SQL**
-> de phpMyAdmin :
+> Pour confirmer pour quel(s) hôte(s) votre utilisateur a un grant, dans
+> phpMyAdmin (connecté en tant qu'administrateur principal, pas avec
+> l'utilisateur applicatif) → onglet **SQL** :
 > ```sql
-> SHOW VARIABLES LIKE 'socket';
+> SELECT user, host FROM mysql.user WHERE user = 'VOTRE_UTILISATEUR_MYSQL';
 > ```
-> Reportez la valeur obtenue (ex. `/var/lib/mysql/mysql.sock`) dans
-> `DB_SOCKET`. Si `DB_SOCKET` est défini, `DB_HOST`/`DB_PORT` sont ignorés.
->
-> Si vous préférez malgré tout une connexion réseau classique (ex. base
-> hébergée ailleurs que sur le même serveur), laissez `DB_SOCKET` vide et
-> utilisez `DB_HOST=127.0.0.1` + `DB_PORT=3306` — mais cela suppose que
-> l'utilisateur MySQL a bien une autorisation pour `127.0.0.1` ou `%`,
-> ce qui n'est pas le cas par défaut chez Hostinger.
 
 Pour générer une valeur sûre pour `JWT_SECRET`, en local ou en SSH :
 
