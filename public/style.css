@@ -1057,6 +1057,10 @@ main {
   gap: .5rem;
 }
 
+.account-wrap {
+  position: relative;
+}
+
 .user-chip {
   display: flex;
   align-items: center;
@@ -1076,9 +1080,9 @@ main {
 .user-chip:hover { transform: scale(1.04); }
 
 .account-menu {
-  position: fixed;
-  top: 64px;
-  right: 1rem;
+  position: absolute;
+  top: calc(100% + .5rem);
+  right: 0;
   background: var(--card);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-lg);
@@ -1209,6 +1213,17 @@ main {
   background: var(--primary-lt);
   padding: .6rem .8rem;
   border-radius: var(--radius-sm);
+}
+
+.auth-info {
+  color: var(--text-muted);
+  font-size: .82rem;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  padding: .6rem .8rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.25rem;
+  text-align: center;
 }
 
 .auth-success {

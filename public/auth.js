@@ -61,6 +61,21 @@ function initResetPage() {
 
 // ── Page de connexion / inscription (login.html) ────────
 function initLoginPage() {
+  // Message contextuel si la page a été atteinte après une déconnexion
+  // automatique (inactivité ou session expirée)
+  const reason = new URLSearchParams(window.location.search).get('reason');
+  if (reason) {
+    const messages = {
+      inactivity: 'Vous avez été déconnecté(e) après 15 minutes d\'inactivité.',
+      expired: 'Votre session a expiré, veuillez vous reconnecter.',
+    };
+    const messageEl = document.getElementById('session-message');
+    if (messageEl && messages[reason]) {
+      messageEl.textContent = messages[reason];
+      messageEl.classList.remove('hidden');
+    }
+  }
+
   // Bascule entre les onglets Connexion / Inscription
   const tabs = document.querySelectorAll('.auth-tab');
   const forms = {

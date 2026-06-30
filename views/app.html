@@ -24,10 +24,17 @@
           <span class="logo-tagline">by OppaLingo</span>
         </div>
         <div class="header-actions">
-          <button class="user-chip" id="user-chip" title="Mon compte">
-            <span id="user-avatar">🌸</span>
-            <span id="user-username">…</span>
-          </button>
+          <div class="account-wrap">
+            <button class="user-chip" id="user-chip" title="Mon compte">
+              <span id="user-avatar">🌸</span>
+              <span id="user-username">…</span>
+            </button>
+            <!-- Petit menu déroulant du compte (avatar, nom, déconnexion) -->
+            <div class="account-menu hidden" id="account-menu">
+              <p class="account-email" id="account-email"></p>
+              <button class="account-menu-btn" id="btn-logout">Se déconnecter</button>
+            </div>
+          </div>
           <button class="btn-theme-toggle" id="btn-theme-toggle" aria-label="Changer de thème">
             <span id="theme-icon">🌙</span>
           </button>
@@ -41,12 +48,6 @@
       </nav>
     </div>
   </header>
-
-  <!-- Petit menu déroulant du compte (avatar, nom, déconnexion) -->
-  <div class="account-menu hidden" id="account-menu">
-    <p class="account-email" id="account-email"></p>
-    <button class="account-menu-btn" id="btn-logout">Se déconnecter</button>
-  </div>
 
   <main>
 

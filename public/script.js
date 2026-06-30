@@ -35,7 +35,7 @@ async function apiRequest(method, url, body) {
   });
 
   if (res.status === 401) {
-    window.location.href = '/login';
+    window.location.href = '/login?reason=expired';
     throw new Error('Session expirée');
   }
 
@@ -56,6 +56,7 @@ async function init() {
   setupTheme();
   setupNavigation();
   setupAccountMenu();
+  setupInactivityLogout();
 
   try {
     const [meRes, vocabRes, cardsRes, progressRes, streakRes] = await Promise.all([
@@ -178,10 +179,41 @@ function setupAccountMenu() {
     }
   });
 
-  document.getElementById('btn-logout').addEventListener('click', async () => {
-    await apiPost('/api/auth/logout').catch(() => {});
-    window.location.href = '/login';
+  document.getElementById('btn-logout').addEventListener('click', () => logout());
+}
+
+async function logout(reason) {
+  await apiPost('/api/auth/logout').catch(() => {});
+  window.location.href = reason ? `/login?reason=${reason}` : '/login';
+}
+
+// ── Déconnexion automatique par inactivité ───────────────
+// L'utilisateur est déconnecté après 15 minutes sans aucune interaction
+// (souris, clavier, défilement, écran tactile). Le cookie de session
+// expire par ailleurs de lui-même à la fermeture du navigateur (voir
+// lib/auth.js côté serveur, cookie sans maxAge).
+
+const INACTIVITY_LIMIT_MS = 15 * 60 * 1000; // 15 minutes
+const INACTIVITY_CHECK_INTERVAL_MS = 30 * 1000; // vérifié toutes les 30s
+
+let lastActivityAt = Date.now();
+let loggedOutForInactivity = false;
+
+function markActivity() {
+  lastActivityAt = Date.now();
+}
+
+function setupInactivityLogout() {
+  ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'].forEach((eventName) => {
+    document.addEventListener(eventName, markActivity, { passive: true });
   });
+
+  setInterval(() => {
+    if (!loggedOutForInactivity && Date.now() - lastActivityAt >= INACTIVITY_LIMIT_MS) {
+      loggedOutForInactivity = true;
+      logout('inactivity');
+    }
+  }, INACTIVITY_CHECK_INTERVAL_MS);
 }
 
 // ── Navigation entre vues ────────────────────────────
