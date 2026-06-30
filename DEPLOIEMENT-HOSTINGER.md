@@ -48,8 +48,7 @@ d'environnement**, ajoutez (voir aussi `.env.example`) :
 
 | Variable | Valeur |
 |---|---|
-| `DB_HOST` | `localhost` (ou l'hôte donné à l'étape 1) |
-| `DB_PORT` | `3306` |
+| `DB_SOCKET` | chemin du socket MySQL (voir encadré ci-dessous) — **méthode recommandée** |
 | `DB_USER` | l'utilisateur MySQL créé à l'étape 1 |
 | `DB_PASSWORD` | le mot de passe MySQL créé à l'étape 1 |
 | `DB_NAME` | le nom de la base créée à l'étape 1 |
@@ -61,6 +60,30 @@ d'environnement**, ajoutez (voir aussi `.env.example`) :
 | `SMTP_FROM` | `한국어 Flash <noreply@oppalingo.com>` |
 | `APP_URL` | `https://oppalingo.com` |
 | `NODE_ENV` | `production` |
+
+> ⚠️ **Piège fréquent sur les hébergements mutualisés** : sur Hostinger,
+> l'utilisateur MySQL créé dans hPanel n'a souvent l'autorisation de
+> connexion **que via le socket Unix** (le même mode que phpMyAdmin), pas
+> via une connexion réseau classique. Résultat : que vous utilisiez
+> `DB_HOST=localhost` (résolu en IPv6 `::1` côté Node) ou
+> `DB_HOST=127.0.0.1` (connexion TCP), la connexion échoue avec
+> `Access denied for user '...'@'...'` **même si le mot de passe est
+> correct** — car aucune des deux ne correspond à une connexion via socket.
+>
+> **Solution** : définissez `DB_SOCKET` au lieu de `DB_HOST`/`DB_PORT`.
+> Pour obtenir le chemin exact du socket, exécutez dans l'onglet **SQL**
+> de phpMyAdmin :
+> ```sql
+> SHOW VARIABLES LIKE 'socket';
+> ```
+> Reportez la valeur obtenue (ex. `/var/lib/mysql/mysql.sock`) dans
+> `DB_SOCKET`. Si `DB_SOCKET` est défini, `DB_HOST`/`DB_PORT` sont ignorés.
+>
+> Si vous préférez malgré tout une connexion réseau classique (ex. base
+> hébergée ailleurs que sur le même serveur), laissez `DB_SOCKET` vide et
+> utilisez `DB_HOST=127.0.0.1` + `DB_PORT=3306` — mais cela suppose que
+> l'utilisateur MySQL a bien une autorisation pour `127.0.0.1` ou `%`,
+> ce qui n'est pas le cas par défaut chez Hostinger.
 
 Pour générer une valeur sûre pour `JWT_SECRET`, en local ou en SSH :
 
