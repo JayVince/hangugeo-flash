@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS users (
   email         VARCHAR(255) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   avatar        VARCHAR(10)  NOT NULL DEFAULT '🌸',
+  role          ENUM('user', 'admin') NOT NULL DEFAULT 'user',
+  is_active     TINYINT(1)   NOT NULL DEFAULT 1,
   created_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
   updated_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uniq_username (username),
@@ -84,4 +86,16 @@ CREATE TABLE IF NOT EXISTS user_streaks (
   longest_streak    INT NOT NULL DEFAULT 0,
   last_active_date  DATE NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Journal d'audit des actions administrateur
+CREATE TABLE IF NOT EXISTS admin_audit_log (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  admin_id    INT NOT NULL,
+  action      VARCHAR(50)  NOT NULL,
+  target_type VARCHAR(30)  NOT NULL,
+  target_id   VARCHAR(50)  NULL,
+  details     TEXT         NULL,
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

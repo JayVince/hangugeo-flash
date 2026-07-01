@@ -9,9 +9,11 @@ const runStartup   = require('./lib/startup');
 const { hashText, fetchTtsBuffer, MAX_TEXT_LENGTH } = require('./lib/tts');
 const { verifySession, COOKIE_NAME } = require('./lib/auth');
 const { requireAuthApi, requireAuthPage } = require('./middleware/auth');
+const { requireAdminApi, requireAdminPage } = require('./middleware/admin');
 
-const authRoutes = require('./routes/auth');
-const apiRoutes  = require('./routes/api');
+const authRoutes  = require('./routes/auth');
+const apiRoutes   = require('./routes/api');
+const adminRoutes = require('./routes/admin');
 
 const app  = express();
 
@@ -56,9 +58,14 @@ app.get('/app', requireAuthPage, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'app.html'));
 });
 
+app.get('/admin', requireAuthPage, requireAdminPage, (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'admin.html'));
+});
+
 // ── Routes API ──────────────────────────────────────────
 
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', requireAuthApi, requireAdminApi, adminRoutes);
 app.use('/api', requireAuthApi, apiRoutes);
 
 // Prononciation coréenne avec cache disque automatique

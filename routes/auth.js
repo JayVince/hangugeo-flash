@@ -38,7 +38,7 @@ router.post('/register', asyncHandler(async (req, res) => {
 
   const token = signSession({ userId });
   res.cookie(COOKIE_NAME, token, cookieOptions());
-  res.json({ user: { id: userId, username, email, avatar: chosenAvatar } });
+  res.json({ user: { id: userId, username, email, avatar: chosenAvatar, role: 'user', isActive: true } });
 }));
 
 // ── Connexion ──────────────────────────────────────────
@@ -54,6 +54,9 @@ router.post('/login', asyncHandler(async (req, res) => {
 
   if (!user || !(await verifyPassword(password, user.password_hash))) {
     return res.status(401).json({ error: 'Identifiant ou mot de passe incorrect.' });
+  }
+  if (!user.is_active) {
+    return res.status(403).json({ error: 'Ce compte a été suspendu. Contactez un administrateur.' });
   }
 
   const token = signSession({ userId: user.id });
@@ -74,7 +77,7 @@ router.get('/me', asyncHandler(async (req, res) => {
   if (!session) return res.status(401).json({ error: 'Non authentifié.' });
 
   const user = await users.findById(session.userId);
-  if (!user) return res.status(401).json({ error: 'Utilisateur introuvable.' });
+  if (!user || !user.is_active) return res.status(401).json({ error: 'Utilisateur introuvable.' });
 
   res.json({ user: users.toPublicUser(user) });
 }));

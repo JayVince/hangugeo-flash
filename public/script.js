@@ -165,6 +165,7 @@ function renderUserChip() {
   document.getElementById('user-avatar').textContent = state.user.avatar;
   document.getElementById('user-username').textContent = state.user.username;
   document.getElementById('account-email').textContent = state.user.email;
+  document.getElementById('admin-link').classList.toggle('hidden', state.user.role !== 'admin');
 }
 
 function setupAccountMenu() {

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administration | 한국어 Flash — OppaLingo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="logo-row">
+        <div class="logo-block">
+          <div class="logo">
+            <span class="logo-kr">한국어</span>
+            <span class="logo-en">Flash</span>
+            <span class="logo-blossom">🛠️</span>
+          </div>
+          <span class="logo-tagline">Administration</span>
+        </div>
+        <div class="header-actions">
+          <a href="/app" class="admin-back-link" title="Retour à l'application">← App</a>
+          <div class="account-wrap">
+            <button class="user-chip" id="user-chip" title="Mon compte">
+              <span id="user-avatar">🌸</span>
+              <span id="user-username">…</span>
+            </button>
+            <div class="account-menu hidden" id="account-menu">
+              <p class="account-email" id="account-email"></p>
+              <button class="account-menu-btn" id="btn-logout">Se déconnecter</button>
+            </div>
+          </div>
+          <button class="btn-theme-toggle" id="btn-theme-toggle" aria-label="Changer de thème">
+            <span id="theme-icon">🌙</span>
+          </button>
+        </div>
+      </div>
+      <nav>
+        <button class="nav-btn active" data-view="dashboard">📊 Tableau de bord</button>
+        <button class="nav-btn" data-view="users">👥 Utilisateurs</button>
+        <button class="nav-btn" data-view="vocab">📚 Vocabulaire</button>
+        <button class="nav-btn" data-view="audit">🧾 Journal d'audit</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ══════════════════════════════════════════
+         VUE 1 : TABLEAU DE BORD
+    ══════════════════════════════════════════ -->
+    <section id="view-dashboard" class="view active">
+      <div class="view-header"><h1>Tableau de bord</h1></div>
+
+      <div class="admin-stats-grid" id="dashboard-stats">
+        <!-- Rempli par admin.js -->
+      </div>
+
+      <div class="history-card">
+        <h3 class="section-label">Nouveaux comptes — 14 derniers jours</h3>
+        <div id="signups-chart-container"></div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         VUE 2 : UTILISATEURS
+    ══════════════════════════════════════════ -->
+    <section id="view-users" class="view">
+      <div class="view-header">
+        <h1>Utilisateurs</h1>
+        <input type="text" id="user-search" class="select-input admin-search" placeholder="Rechercher (nom, e-mail)…" />
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Avatar</th><th>Nom d'utilisateur</th><th>E-mail</th>
+              <th>Rôle</th><th>Statut</th><th>Inscrit le</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="admin-pagination" id="users-pagination"></div>
+    </section>
+
+    <!-- Fiche détaillée utilisateur (superposition) -->
+    <div class="admin-modal-overlay hidden" id="user-modal-overlay">
+      <div class="admin-modal">
+        <button class="admin-modal-close" id="user-modal-close">✕</button>
+        <h2 class="admin-modal-title">Fiche utilisateur</h2>
+
+        <div class="admin-modal-stats" id="user-modal-stats"></div>
+
+        <form id="user-edit-form" class="auth-form">
+          <div class="form-group">
+            <label for="edit-username">Nom d'utilisateur</label>
+            <input type="text" id="edit-username" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-email">E-mail</label>
+            <input type="email" id="edit-email" required />
+          </div>
+          <div class="form-group">
+            <label>Avatar</label>
+            <div class="avatar-picker" id="edit-avatar-picker"></div>
+          </div>
+          <p class="auth-error hidden" id="user-edit-error"></p>
+          <button type="submit" class="btn-primary auth-submit">Enregistrer les modifications</button>
+        </form>
+
+        <div class="admin-modal-actions">
+          <button class="account-menu-btn" id="btn-toggle-active">Suspendre</button>
+          <button class="account-menu-btn" id="btn-toggle-role">Promouvoir administrateur</button>
+          <button class="account-menu-btn" id="btn-force-reset">Forcer réinit. mot de passe</button>
+          <button class="btn-delete-account" id="btn-delete-user">Supprimer ce compte</button>
+        </div>
+        <p class="auth-success hidden" id="user-modal-message"></p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         VUE 3 : VOCABULAIRE
+    ══════════════════════════════════════════ -->
+    <section id="view-vocab" class="view">
+      <div class="view-header">
+        <h1>Vocabulaire</h1>
+        <input type="text" id="vocab-search" class="select-input admin-search" placeholder="Rechercher…" />
+      </div>
+
+      <div class="add-card-form">
+        <h3 class="form-title" id="vocab-form-title">Ajouter un mot</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="vocab-hangeul">Coréen (한글)</label>
+            <input type="text" id="vocab-hangeul" />
+          </div>
+          <div class="form-group">
+            <label for="vocab-roman">Romanisation</label>
+            <input type="text" id="vocab-roman" />
+          </div>
+          <div class="form-group">
+            <label for="vocab-translation">Traduction française</label>
+            <input type="text" id="vocab-translation" />
+          </div>
+          <div class="form-group">
+            <label for="vocab-category">Catégorie</label>
+            <input type="text" id="vocab-category" placeholder="ex. Salutations" />
+          </div>
+        </div>
+        <div class="form-buttons">
+          <button class="btn-primary" id="btn-add-vocab">+ Ajouter le mot</button>
+          <button class="btn-cancel hidden" id="btn-cancel-vocab-edit">Annuler</button>
+        </div>
+        <p class="form-error hidden" id="vocab-form-error"></p>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>한글</th><th>Romanisation</th><th>Traduction</th><th>Catégorie</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="vocab-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         VUE 4 : JOURNAL D'AUDIT
+    ══════════════════════════════════════════ -->
+    <section id="view-audit" class="view">
+      <div class="view-header"><h1>Journal d'audit</h1></div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Date</th><th>Administrateur</th><th>Action</th><th>Cible</th><th>Détails</th></tr>
+          </thead>
+          <tbody id="audit-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="admin-pagination" id="audit-pagination"></div>
+    </section>
+
+  </main>
+
+  <script src="/admin.js"></script>
+</body>
+</html>

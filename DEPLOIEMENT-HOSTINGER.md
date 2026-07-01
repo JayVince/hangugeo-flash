@@ -157,6 +157,59 @@ audio* ci-dessous).
 - La route `/api/tts` nécessite un accès internet sortant depuis le
   serveur (déjà disponible par défaut chez Hostinger).
 
+## Panneau administrateur
+
+L'application inclut un panneau d'administration (`/admin`) permettant de
+gérer les utilisateurs, le vocabulaire, et de consulter un tableau de bord
+et un journal d'audit.
+
+### Créer le tout premier administrateur
+
+1. Inscrivez-vous normalement sur le site avec le compte qui doit devenir
+   administrateur.
+2. Dans hPanel → **Node.js** → votre application → **Variables
+   d'environnement**, ajoutez :
+   ```
+   ADMIN_BOOTSTRAP_EMAIL=votre-email@exemple.com
+   ```
+   (l'e-mail exact utilisé à l'inscription)
+3. **Restart App**. Au démarrage, les logs afficheront :
+   ```
+   ✓ Compte promu administrateur : votre-email@exemple.com
+   ```
+4. Connectez-vous : un lien **🛠️ Panneau admin** apparaît désormais dans
+   le menu du compte (sous l'avatar).
+
+**Important** : une fois le premier administrateur créé, il est recommandé
+de **retirer la variable `ADMIN_BOOTSTRAP_EMAIL`** des variables
+d'environnement (puis de redémarrer). Elle n'est plus nécessaire ensuite —
+toute gestion des rôles se fait depuis le panneau lui-même — et la laisser
+indéfiniment permettrait de re-promouvoir ce compte automatiquement même
+après une rétrogradation volontaire décidée depuis l'interface.
+
+### Fonctionnalités du panneau
+
+- **Tableau de bord** — utilisateurs totaux/actifs, mots du programme,
+  cartes personnalisées, sessions de quiz, graphique des inscriptions
+- **Utilisateurs** — recherche, fiche détaillée avec statistiques
+  d'apprentissage, modification du profil, suspension/réactivation,
+  changement de rôle, suppression, réinitialisation forcée du mot de passe
+- **Vocabulaire** — ajout/modification/suppression des mots du programme
+  (protection automatique contre les doublons via la base de données)
+- **Journal d'audit** — historique de toutes les actions administrateur
+
+### Garde-fous de sécurité intégrés
+
+- Un administrateur ne peut ni suspendre, ni supprimer, ni modifier son
+  propre rôle depuis le panneau (évite le blocage accidentel de son propre
+  accès)
+- Impossible de rétrograder ou supprimer le **dernier administrateur
+  restant**
+- Une suspension prend effet **immédiatement**, y compris pour une session
+  déjà ouverte (pas besoin d'attendre l'expiration du jeton)
+- Le rôle est revérifié en base à chaque requête admin — une
+  rétrogradation est donc, elle aussi, immédiate
+
 ## Prononciation audio
 
 L'application utilise un moteur de synthèse vocale neuronal (Google
