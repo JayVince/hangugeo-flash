@@ -6,7 +6,7 @@
  * - DB_SOCKET défini → connexion via socket Unix (recommandé sur les
  *   hébergements mutualisés comme Hostinger, où l'utilisateur MySQL n'a
  *   parfois l'autorisation que pour ce mode, pas pour une connexion
- *   réseau classique à 127.0.0.1 — voir DEPLOIEMENT-HOSTINGER.md).
+ *   réseau classique à 127.0.0.1 — voir README.md).
  * - Sinon → connexion réseau classique via DB_HOST/DB_PORT.
  */
 require('dotenv').config();

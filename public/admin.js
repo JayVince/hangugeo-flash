@@ -390,53 +390,134 @@ function showModalMessage(message, isError) {
 //  VOCABULAIRE
 // ══════════════════════════════════════════════════════
 
+// Toutes les données sont chargées en une fois (270+ mots, ~30 Ko —
+// négligeable), ce qui permet une recherche instantanée sans aller-retour
+// serveur. La pagination, elle, est calculée côté client : on mesure la
+// hauteur réellement disponible dans la fenêtre pour choisir combien de
+// lignes tiennent à l'écran, avec un minimum de 10 et un plafond
+// raisonnable pour éviter des pages démesurées sur très grands écrans.
+const VOCAB_MIN_PAGE_SIZE = 10;
+const VOCAB_MAX_PAGE_SIZE = 50;
+const VOCAB_ROW_HEIGHT_FALLBACK = 45; // px, utilisé avant la 1ère mesure réelle
+const VOCAB_BOTTOM_RESERVED_SPACE = 140; // px, place laissée pour la pagination + marge
+
+let vocabResizeTimeout;
+
 function setupVocab() {
   document.getElementById('vocab-search').addEventListener('input', (e) => {
-    renderVocabTable(e.target.value.trim().toLowerCase());
+    state.vocabFilterText = e.target.value.trim().toLowerCase();
+    state.vocabPage = 1;
+    recomputeVocabPageSizeAndRender();
   });
   document.getElementById('btn-add-vocab').addEventListener('click', saveVocabWord);
   document.getElementById('btn-cancel-vocab-edit').addEventListener('click', cancelVocabEdit);
+
+  // Recalcule le nombre de lignes par page si la fenêtre est redimensionnée
+  // (ex. bascule portrait/paysage, redimensionnement de la fenêtre navigateur)
+  window.addEventListener('resize', () => {
+    clearTimeout(vocabResizeTimeout);
+    vocabResizeTimeout = setTimeout(() => {
+      if (document.getElementById('view-vocab').classList.contains('active')) {
+        recomputeVocabPageSizeAndRender();
+      }
+    }, 200);
+  });
 }
 
 async function renderVocab() {
   const { vocab } = await apiGet('/api/admin/vocab');
   state.vocab = vocab;
-  renderVocabTable(document.getElementById('vocab-search').value.trim().toLowerCase());
+  state.vocabPage = 1;
+  recomputeVocabPageSizeAndRender();
 }
 
-function renderVocabTable(filter) {
-  const filtered = filter
+function getFilteredVocab() {
+  const filter = state.vocabFilterText || '';
+  return filter
     ? state.vocab.filter((v) =>
         v.hangeul.toLowerCase().includes(filter) ||
         v.translation.toLowerCase().includes(filter) ||
         v.category.toLowerCase().includes(filter))
     : state.vocab;
+}
+
+// Mesure la hauteur réelle d'une ligne de tableau une fois rendue dans le
+// DOM, puis en déduit combien de lignes tiennent dans l'espace disponible
+// sous le tableau. Deux passes : un premier rendu (taille provisoire) pour
+// obtenir une mesure fiable, puis un second rendu avec la taille corrigée
+// si elle diffère.
+function recomputeVocabPageSizeAndRender() {
+  if (!state.vocabPageSize) state.vocabPageSize = VOCAB_MIN_PAGE_SIZE;
+  renderVocabTable();
+
+  const wrap = document.querySelector('#view-vocab .admin-table-wrap');
+  const firstRow = document.querySelector('#vocab-table-body tr');
+  if (!wrap || !firstRow) return;
+
+  const rowHeight = firstRow.getBoundingClientRect().height || VOCAB_ROW_HEIGHT_FALLBACK;
+  const availableHeight = window.innerHeight - wrap.getBoundingClientRect().top - VOCAB_BOTTOM_RESERVED_SPACE;
+  const computedPageSize = Math.min(
+    VOCAB_MAX_PAGE_SIZE,
+    Math.max(VOCAB_MIN_PAGE_SIZE, Math.floor(availableHeight / rowHeight))
+  );
+
+  if (computedPageSize !== state.vocabPageSize) {
+    state.vocabPageSize = computedPageSize;
+    state.vocabPage = 1; // la taille de page a changé, on repart de la première page
+    renderVocabTable();
+  }
+}
+
+function renderVocabTable() {
+  const filtered = getFilteredVocab();
+  const pageSize = state.vocabPageSize || VOCAB_MIN_PAGE_SIZE;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  state.vocabPage = Math.min(Math.max(1, state.vocabPage || 1), totalPages);
+
+  const start = (state.vocabPage - 1) * pageSize;
+  const pageItems = filtered.slice(start, start + pageSize);
 
   const tbody = document.getElementById('vocab-table-body');
 
-  if (filtered.length === 0) {
+  if (pageItems.length === 0) {
     tbody.innerHTML = `<tr><td colspan="5" class="admin-empty-cell">Aucun mot trouvé.</td></tr>`;
-    return;
+  } else {
+    tbody.innerHTML = pageItems.map((v) => `
+      <tr>
+        <td>${escapeHtml(v.hangeul)}</td>
+        <td>${escapeHtml(v.romanisation)}</td>
+        <td>${escapeHtml(v.translation)}</td>
+        <td>${escapeHtml(v.category)}</td>
+        <td class="admin-table-actions-cell">
+          <button class="btn-edit" data-id="${v.id}" title="Modifier">✎</button>
+          <button class="btn-delete" data-id="${v.id}" title="Supprimer">✕</button>
+        </td>
+      </tr>`).join('');
+
+    tbody.querySelectorAll('.btn-edit').forEach((btn) => {
+      btn.addEventListener('click', () => startVocabEdit(btn.dataset.id));
+    });
+    tbody.querySelectorAll('.btn-delete').forEach((btn) => {
+      btn.addEventListener('click', () => deleteVocabWord(btn.dataset.id));
+    });
   }
 
-  tbody.innerHTML = filtered.map((v) => `
-    <tr>
-      <td>${escapeHtml(v.hangeul)}</td>
-      <td>${escapeHtml(v.romanisation)}</td>
-      <td>${escapeHtml(v.translation)}</td>
-      <td>${escapeHtml(v.category)}</td>
-      <td class="admin-table-actions-cell">
-        <button class="btn-edit" data-id="${v.id}" title="Modifier">✎</button>
-        <button class="btn-delete" data-id="${v.id}" title="Supprimer">✕</button>
-      </td>
-    </tr>`).join('');
+  renderVocabPagination(filtered.length, pageSize, totalPages);
+}
 
-  tbody.querySelectorAll('.btn-edit').forEach((btn) => {
-    btn.addEventListener('click', () => startVocabEdit(btn.dataset.id));
-  });
-  tbody.querySelectorAll('.btn-delete').forEach((btn) => {
-    btn.addEventListener('click', () => deleteVocabWord(btn.dataset.id));
-  });
+function renderVocabPagination(total, pageSize, totalPages) {
+  const pagination = document.getElementById('vocab-pagination');
+  if (!pagination) return;
+
+  pagination.innerHTML = `
+    <button class="btn-icon" id="vocab-prev" ${state.vocabPage <= 1 ? 'disabled' : ''}>←</button>
+    <span class="admin-pagination-label">Page ${state.vocabPage} / ${totalPages} (${total} mot${total > 1 ? 's' : ''}, ${pageSize} / page)</span>
+    <button class="btn-icon" id="vocab-next" ${state.vocabPage >= totalPages ? 'disabled' : ''}>→</button>`;
+
+  const prevBtn = document.getElementById('vocab-prev');
+  const nextBtn = document.getElementById('vocab-next');
+  if (prevBtn) prevBtn.addEventListener('click', () => { state.vocabPage--; renderVocabTable(); });
+  if (nextBtn) nextBtn.addEventListener('click', () => { state.vocabPage++; renderVocabTable(); });
 }
 
 function startVocabEdit(id) {
