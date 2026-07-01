@@ -6,6 +6,15 @@
 /* ── Reset & Variables ──────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Les navigateurs appliquent par défaut une couleur de texte fixe
+   (souvent noire) aux <button>, qui n'hérite pas automatiquement du
+   thème — cause du texte invisible en mode sombre sur certains boutons
+   sans couleur explicite. On force l'héritage ici, une fois pour toutes. */
+button {
+  font-family: inherit;
+  color: inherit;
+}
+
 :root {
   --bg:           #FFF9F0;
   --card:         #FFFFFF;
@@ -394,6 +403,7 @@ main {
 .btn-icon {
   background: var(--card);
   border: 1.5px solid var(--border);
+  color: var(--text);
   width: 46px;
   height: 46px;
   border-radius: 50%;
@@ -537,6 +547,14 @@ main {
   opacity: .6;
   cursor: default;
   transform: none;
+}
+
+/* Variante compacte — pour les boutons "Ajouter/Enregistrer" dans des
+   formulaires resserrés (Mes Cartes, panneau admin), où la taille "hero"
+   de .btn-primary (pensée pour "Commencer le quiz" etc.) est trop imposante. */
+.btn-primary.btn-compact {
+  padding: .55rem 1.15rem;
+  font-size: .83rem;
 }
 
 .quiz-meta {
